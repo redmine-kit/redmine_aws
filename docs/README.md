@@ -13,7 +13,7 @@ Redmine AWS (`redmine_aws`) is the Redmine plugin that the Redmine AWS plugins s
 | --- | --- | --- | --- |
 | The AWS menu | One "AWS" item in Redmine's administration menu, whose page has a tab for each installed Redmine AWS plugin | Administrators | [admin.md](admin.md#the-aws-menu) |
 | Status | The versions of Redmine and of the Redmine AWS plugins, the settings read from SSM Parameter Store, values that the other plugins add, and the connection test of the database and the AWS services | Administrators | [admin.md](admin.md#status) |
-| AWS clients | The region and the options that every plugin's AWS clients get, which tests use to send every request to moto, LocalStack or SDK stubs | Always (empty unless set) | [api.md](api.md#aws-clients) |
+| AWS clients | The region and the options that every plugin's AWS clients get, which tests use to send every request to AWS Emulator (LocalStack or moto only where a plugin's testing docs say so) or, for errors and account states, to SDK stubs | Always (empty unless set) | [api.md](api.md#aws-clients) |
 
 Every Redmine AWS plugin (`redmine_aws_*`) requires Redmine AWS, without exception: each declares it in `init.rb` (`requires_redmine_plugin :redmine_aws`), so Redmine refuses to start without it, and each gem depends on the `redmine_aws` gem, so installing a plugin's gem installs it too ([setup.md](setup.md#installation)). The plugins:
 
@@ -43,7 +43,7 @@ The plugin calls no AWS API itself, so it needs no AWS SDK gem; each plugin that
 
 ## Sponsors
 
-<Sponsors><a href="https://www.keyselect.co.jp/">KEY SELECT</a> <a href="https://localstack.cloud">LocalStack</a></Sponsors>
+<Sponsors ids="keyselect"><a href="https://www.keyselect.co.jp/">KEY SELECT</a></Sponsors>
 
 ## License
 

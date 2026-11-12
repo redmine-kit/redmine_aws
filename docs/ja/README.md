@@ -15,7 +15,7 @@ Redmine AWS (`redmine_aws`) は、Redmine AWS のプラグインが共通で使�
 | --- | --- | --- | --- |
 | AWS メニュー | Redmine の管理メニューの 1 つの項目「AWS」。そのページに、インストールした Redmine AWS のプラグインごとのタブがある | システム管理者 | [admin.md](admin.md#the-aws-menu) |
 | ステータス | Redmine と Redmine AWS のプラグインのバージョン、SSM Parameter Store から読み込んだ設定、ほかのプラグインが追加する値、データベースと AWS のサービスへの接続テスト | システム管理者 | [admin.md](admin.md#status) |
-| AWS クライアント | どのプラグインの AWS クライアントにも渡すリージョンとオプション。テストでは、これですべてのリクエストを moto、LocalStack、SDK のスタブに送る | 常に (設定しなければ空) | [api.md](api.md#aws-clients) |
+| AWS クライアント | どのプラグインの AWS クライアントにも渡すリージョンとオプション。テストでは、これですべてのリクエストを AWS Emulator に送る (LocalStack と moto は、プラグインのテストの資料が示すところだけ)。エラーとアカウントの状態は SDK のスタブに送る | 常に (設定しなければ空) | [api.md](api.md#aws-clients) |
 
 Redmine AWS のプラグイン (`redmine_aws_*`) は、例外なく、どれも Redmine AWS を必要とします。各プラグインは `init.rb` でこれを宣言する (`requires_redmine_plugin :redmine_aws`) ので、Redmine AWS がなければ Redmine は起動しません。また、各プラグインの gem は `redmine_aws` の gem に依存するので、プラグインの gem をインストールすると Redmine AWS もインストールされます ([setup.md](setup.md#installation))。プラグインは次のとおりです。
 
@@ -51,7 +51,7 @@ Redmine AWS のプラグイン (`redmine_aws_*`) は、例外なく、どれも 
 
 ## スポンサー
 
-<Sponsors><a href="https://www.keyselect.co.jp/">KEY SELECT</a> <a href="https://localstack.cloud">LocalStack</a></Sponsors>
+<Sponsors ids="keyselect"><a href="https://www.keyselect.co.jp/">KEY SELECT</a></Sponsors>
 
 <a id="license"></a>
 

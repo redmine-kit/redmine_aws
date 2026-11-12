@@ -23,13 +23,6 @@ The Redmine plugin that the Redmine AWS plugins share: the "AWS" item of Redmine
     <img alt="KEY SELECT" src=".github/assets/keyselect-logo.svg" width="136" height="29">
   </picture>
 </a>
-&emsp;&emsp;
-<a href="https://localstack.cloud">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/localstack-logo-dark.svg">
-    <img alt="LocalStack" src=".github/assets/localstack-logo.svg" width="98" height="23">
-  </picture>
-</a>
 
 ## License
 
