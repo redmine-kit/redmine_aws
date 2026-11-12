@@ -103,6 +103,10 @@ RedmineAws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_ti
 
 This plugin has no AWS SDK gem; each plugin depends on the SDK gems of the services it calls.
 
+## Compatibility
+
+The plugins depend on `redmine_aws ~> 0.1` (0.1 or later, below 1.0). While this plugin is at 0.x, a new minor or patch version keeps what this page describes working for them: it may add to it, but does not change or remove what they use. A change that breaks them comes only with 1.0, and the plugins then depend on the new major version. Each plugin's CI also tests with the newest released 0.x version (`test (redmine_aws release)`, [below](#redmine-aws-in-the-test-image)).
+
 ## Tests of the plugins
 
 ### Test helpers
@@ -152,4 +156,4 @@ COPY --from=redmine_aws . plugins/redmine_aws/
 
 When the test image adds the plugin to `Gemfile.local` as a gem by path, Bundler needs `redmine_aws` by path too (`gem 'redmine_aws', path: 'plugins/redmine_aws', require: false`). CI checks out `redmine-kit/redmine_aws` into `redmine_aws/` and sets `REDMINE_AWS_DIR`. [Redmine AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda) does all of this.
 
-The plugins' CI also runs two jobs around the gem. `test (redmine_aws release)` runs the tests with the newest `v0.1.*` tag of this plugin, the source of the published gem, as well as with its main; until the first release it only notes that there is none. `gem` runs `bin/test-gem`, which builds the plugin's gem and this plugin's, installs them into Redmine as the plugin's setup page says, links them into `plugins/` and boots Redmine with every file loaded (`zeitwerk:check`, and the production environment), so that a gem that misses a file fails before a version tag publishes it. This plugin's own `bin/test-gem` boots it both as the setup page installs it (not required by Bundler) and required early by Bundler.
+The plugins' CI also runs two jobs around the gem. `test (redmine_aws release)` runs the tests with the newest `v0.*` tag of this plugin, the source of the published gem, as well as with its main; until the first release it only notes that there is none. `gem` runs `bin/test-gem`, which builds the plugin's gem and this plugin's, installs them into Redmine as the plugin's setup page says, links them into `plugins/` and boots Redmine with every file loaded (`zeitwerk:check`, and the production environment), so that a gem that misses a file fails before a version tag publishes it. This plugin's own `bin/test-gem` boots it both as the setup page installs it (not required by Bundler) and required early by Bundler.

@@ -115,6 +115,12 @@ RedmineAws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_ti
 
 このプラグインは AWS SDK の gem を持ちません。各プラグインが、呼び出すサービスの SDK の gem に依存します。
 
+<a id="compatibility"></a>
+
+## 互換性
+
+プラグインは `redmine_aws ~> 0.1` (0.1 以上 1.0 未満) に依存します。このプラグインが 0.x の間は、新しいマイナーバージョンやパッチバージョンでも、このページに書いたものはプラグインからそのまま使えます。追加はしても、プラグインが使うものを変更したり削除したりはしません。プラグインが動かなくなる変更は 1.0 でだけ行い、プラグインはそのとき新しいメジャーバージョンに依存します。各プラグインの CI は、公開した最新の 0.x のバージョンでもテストします (`test (redmine_aws release)`。[下記](#redmine-aws-in-the-test-image))。
+
 <a id="tests-of-the-plugins"></a>
 
 ## プラグインのテスト
@@ -170,4 +176,4 @@ COPY --from=redmine_aws . plugins/redmine_aws/
 
 テスト用のイメージがプラグインをパスで gem として `Gemfile.local` に追加するときは、Bundler は `redmine_aws` もパスで必要とします (`gem 'redmine_aws', path: 'plugins/redmine_aws', require: false`)。CI は `redmine-kit/redmine_aws` を `redmine_aws/` にチェックアウトし、`REDMINE_AWS_DIR` を設定します。[Redmine AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda) がこれをすべて行っています。
 
-プラグインの CI は、gem に関係する 2 つのジョブも実行します。`test (redmine_aws release)` は、このプラグインの main に加えて、公開する gem の元である最新の `v0.1.*` のタグでテストを実行します。最初のリリースまでは、タグがないことを表示するだけです。`gem` は `bin/test-gem` を実行します。プラグインとこのプラグインの gem をビルドし、プラグインの導入のページのとおりに Redmine にインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と production 環境)。ファイルが足りない gem は、バージョンのタグで公開する前に失敗します。このプラグインの `bin/test-gem` は、導入のページのとおり (Bundler は読み込まない) と、Bundler が先に読み込む形の両方で起動します。
+プラグインの CI は、gem に関係する 2 つのジョブも実行します。`test (redmine_aws release)` は、このプラグインの main に加えて、公開する gem の元である最新の `v0.*` のタグでテストを実行します。最初のリリースまでは、タグがないことを表示するだけです。`gem` は `bin/test-gem` を実行します。プラグインとこのプラグインの gem をビルドし、プラグインの導入のページのとおりに Redmine にインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と production 環境)。ファイルが足りない gem は、バージョンのタグで公開する前に失敗します。このプラグインの `bin/test-gem` は、導入のページのとおり (Bundler は読み込まない) と、Bundler が先に読み込む形の両方で起動します。
