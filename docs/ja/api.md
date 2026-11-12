@@ -110,7 +110,7 @@ RedmineAws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_ti
 | --- | --- |
 | `client(klass, **options)` | SDK のクラスのクライアント。オプションは、弱い順に、`region` のリージョン、ここで渡したオプション、`client_options` |
 | `region` | `AWS_REGION`、なければ `AWS_DEFAULT_REGION`。どちらもなければ nil |
-| `client_options`、`client_options=` | `client` で作成するすべてのクライアントに渡すオプション。設定しなければ空で、SDK はいつもどおり認証情報、リージョン、エンドポイントを読み込む (`AWS_ENDPOINT_URL`、`AWS_ENDPOINT_URL_<SERVICE>`)。テストでは、リクエストを moto、LocalStack、SDK のスタブに送るために設定する |
+| `client_options`、`client_options=` | `client` で作成するすべてのクライアントに渡すオプション。設定しなければ空で、SDK はいつもどおり認証情報、リージョン、エンドポイントを読み込む (`AWS_ENDPOINT_URL`、`AWS_ENDPOINT_URL_<SERVICE>`)。テストでは、リクエストを AWS Emulator に送るために設定する (LocalStack と moto は、プラグインのテストの資料が示すところだけ)。ほかの方法で用意できないエラーとアカウントの状態は、SDK のスタブに送る |
 | `env_true?(name)` | 環境変数が `true` かどうか。大文字と小文字を区別せず、前後の空白は無視する |
 
 このプラグインは AWS SDK の gem を持ちません。各プラグインが、呼び出すサービスの SDK の gem に依存します。
@@ -139,9 +139,9 @@ require File.join(Redmine::Plugin.find(:redmine_aws).directory, 'test/support/re
 | `RedmineAws::TestHelper` | 内容 |
 | --- | --- |
 | `with_env(values) { … }` | ブロックの間だけ環境変数を設定し (`nil` は削除)、元に戻す |
-| `with_aws_client_options(**options) { … }` | ブロックの間だけ、オプションを `RedmineAws.client_options` にマージする。たとえば moto の `endpoint:` |
+| `with_aws_client_options(**options) { … }` | ブロックの間だけ、オプションを `RedmineAws.client_options` にマージする。たとえば AWS Emulator の `endpoint:` |
 | `stub_aws_client(klass, **stubs)` | SDK のレスポンスのスタブ (`stub_responses`) を持つクライアント。リージョンは `us-east-1`、認証情報はテスト用。スタブを渡さなければ、どの呼び出しも空のデータを返す |
-| `TEST_REGION`、`TestHelper.credentials` | テストで使うクライアントのリージョン (`us-east-1`) と認証情報 (`test`/`test`)。moto と LocalStack はこれを受け付ける |
+| `TEST_REGION`、`TestHelper.credentials` | テストで使うクライアントのリージョン (`us-east-1`) と認証情報 (`test`/`test`)。AWS Emulator (認証はオフ)、LocalStack、moto はこれを受け付ける |
 
 ドキュメントのスクリーンショットは、プラグインの `docs/` を指定して `RedmineAws::ScreenshotCase` (`test/support/redmine_aws/screenshot_case.rb`) で撮影します。
 

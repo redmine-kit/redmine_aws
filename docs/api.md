@@ -98,7 +98,7 @@ RedmineAws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_ti
 | --- | --- |
 | `client(klass, **options)` | A client of the SDK class. Its options are, from weakest to strongest: the region of `region`, the options given here, `client_options` |
 | `region` | `AWS_REGION`, then `AWS_DEFAULT_REGION`; nil when neither is set |
-| `client_options`, `client_options=` | Options for every client built with `client`. Empty unless set: the SDK then reads the credentials, the region and the endpoints as usual (`AWS_ENDPOINT_URL`, `AWS_ENDPOINT_URL_<SERVICE>`). Tests set them to send requests to moto, LocalStack or SDK stubs |
+| `client_options`, `client_options=` | Options for every client built with `client`. Empty unless set: the SDK then reads the credentials, the region and the endpoints as usual (`AWS_ENDPOINT_URL`, `AWS_ENDPOINT_URL_<SERVICE>`). Tests set them to send requests to AWS Emulator (LocalStack or moto only where a plugin's testing docs say so), or to SDK stubs for errors and account states that can't be set up otherwise |
 | `env_true?(name)` | Whether an environment variable is `true`, in any case, spaces ignored |
 
 This plugin has no AWS SDK gem; each plugin depends on the SDK gems of the services it calls.
@@ -121,9 +121,9 @@ require File.join(Redmine::Plugin.find(:redmine_aws).directory, 'test/support/re
 | `RedmineAws::TestHelper` | Details |
 | --- | --- |
 | `with_env(values) { … }` | Sets environment variables for the block (`nil` unsets one) and restores them |
-| `with_aws_client_options(**options) { … }` | Merges options into `RedmineAws.client_options` for the block, for example `endpoint:` of moto |
+| `with_aws_client_options(**options) { … }` | Merges options into `RedmineAws.client_options` for the block, for example the `endpoint:` of AWS Emulator |
 | `stub_aws_client(klass, **stubs)` | A client with SDK response stubs (`stub_responses`), in `us-east-1` with test credentials; without stubs, every call returns empty data |
-| `TEST_REGION`, `TestHelper.credentials` | The region (`us-east-1`) and the credentials (`test`/`test`) of clients in tests, which moto and LocalStack accept |
+| `TEST_REGION`, `TestHelper.credentials` | The region (`us-east-1`) and the credentials (`test`/`test`) of clients in tests, which AWS Emulator (with its authentication off), LocalStack and moto accept |
 
 The screenshots of the docs use `RedmineAws::ScreenshotCase` (`test/support/redmine_aws/screenshot_case.rb`), with the plugin's `docs/`:
 

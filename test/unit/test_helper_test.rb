@@ -21,8 +21,8 @@ module RedmineAws
 
     def test_with_aws_client_options_merges_and_restores
       RedmineAws.client_options = { region: 'us-east-1' }
-      with_aws_client_options(endpoint: 'http://moto:5000') do
-        assert_equal({ region: 'us-east-1', endpoint: 'http://moto:5000' }, RedmineAws.client_options)
+      with_aws_client_options(endpoint: 'https://127.0.0.1:9297') do
+        assert_equal({ region: 'us-east-1', endpoint: 'https://127.0.0.1:9297' }, RedmineAws.client_options)
       end
 
       assert_equal({ region: 'us-east-1' }, RedmineAws.client_options)

@@ -46,9 +46,9 @@ module RedmineAws
 
     def test_client_options_over_everything
       ENV['AWS_REGION'] = 'ap-northeast-1'
-      RedmineAws.client_options = { endpoint: 'http://moto:5000', region: 'us-east-1' }
+      RedmineAws.client_options = { endpoint: 'https://127.0.0.1:9297', region: 'us-east-1' }
 
-      assert_equal({ region: 'us-east-1', retry_limit: 0, endpoint: 'http://moto:5000' },
+      assert_equal({ region: 'us-east-1', retry_limit: 0, endpoint: 'https://127.0.0.1:9297' },
                    RedmineAws.client(FakeClient, region: 'eu-west-1', retry_limit: 0).options)
     end
 

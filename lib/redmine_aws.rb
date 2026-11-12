@@ -26,8 +26,9 @@ module RedmineAws
     # credentials, the region and the endpoints from the environment and the
     # instance or function role, as usual (AWS_REGION, AWS_ENDPOINT_URL,
     # AWS_ENDPOINT_URL_<SERVICE>). Tests set it to send every plugin's
-    # requests to moto or LocalStack (endpoint:, credentials:) or to SDK
-    # stubs (stub_responses:).
+    # requests to AWS Emulator (endpoint:, credentials:; LocalStack or moto
+    # only where a plugin's testing docs say so), or to SDK stubs
+    # (stub_responses:) for errors and states that can't be set up otherwise.
     attr_writer :client_options
 
     def client_options
