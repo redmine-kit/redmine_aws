@@ -74,6 +74,9 @@ class AwsStatusControllerTest < Redmine::ControllerTest
     assert_select 'table.list.checks tr.ok td.value em.info', text: /\A[\d,]+ ms\z/
     assert_select 'table.list.checks th', 0
     assert_select 'table.list.checks tr.ok td.tick span.icon-ok'
+    # Two tables of values (Versions, Connection test), one stylesheet.
+    assert_select 'table.list.values', 2
+    assert_select 'head link[rel=stylesheet][href*="aws_values"]', 1
   end
 
   # The page shows the class of the error, and the message goes only to the
