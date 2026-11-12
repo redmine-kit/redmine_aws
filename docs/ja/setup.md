@@ -21,7 +21,7 @@ Redmine AWS を使う Redmine に必要なもの (インストール、設定、
 
 ### gem
 
-バージョンのタグ (`v*`) ごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します (`.github/workflows/gem.yml`)。gem には、実行に必要なファイル (`init.rb`、`boot/`、`lib/`、`app/`、`config/`、`help/`、`LICENSE`) と `test/support/` が入ります。プラグインの `Gemfile` は入れません。ほかの Redmine AWS のプラグインの gem がこの gem に依存するので、Bundler がいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
+バージョンのタグ (`v*`) ごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します (`.github/workflows/gem.yml`)。gem には、実行に必要なファイル (`init.rb`、`boot/`、`lib/`、`app/`、`assets/`、`config/`、`help/`、`LICENSE`) と `test/support/` が入ります。プラグインの `Gemfile` は入れません。ほかの Redmine AWS のプラグインの gem がこの gem に依存するので、Bundler がいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
 
 ```sh
 ln -s "$(bundle info --path redmine_aws)" plugins/redmine_aws
