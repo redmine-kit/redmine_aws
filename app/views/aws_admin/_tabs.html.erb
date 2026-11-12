@@ -1,0 +1,3 @@
+<%# The tabs of the AWS administration page (RedmineAws::Admin). %>
+<%= title l(:label_aws) %>
+<%= render_tabs RedmineAws::Admin.tabs.map { |tab| { name: tab.name, label: tab.label, url: tab.url } }, selected %>

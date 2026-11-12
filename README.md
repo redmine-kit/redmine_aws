@@ -1,0 +1,36 @@
+# Redmine AWS
+
+[![CI](https://img.shields.io/github/actions/workflow/status/redmine-kit/redmine_aws/ci.yml?branch=main&label=CI)](https://github.com/redmine-kit/redmine_aws/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/redmine-kit/redmine_aws?label=Coverage)](https://codecov.io/gh/redmine-kit/redmine_aws)
+[![License](https://img.shields.io/github/license/redmine-kit/redmine_aws?label=License)](LICENSE)
+
+The Redmine plugin that the Redmine AWS plugins share: the "AWS" item of Redmine's administration menu with a tab per plugin, the "Status" tab with the versions and a connection test of the database and the AWS services, and the shared settings of the AWS clients. It works on any server. Every Redmine AWS plugin requires it, and their gems depend on its gem, which installs it with them: [Redmine AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda), [Redmine AWS S3](https://github.com/redmine-kit/redmine_aws_s3), [Redmine AWS SES](https://github.com/redmine-kit/redmine_aws_ses), [Redmine AWS SQS](https://github.com/redmine-kit/redmine_aws_sqs), [Redmine AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm) and [Redmine AWS Cost Explorer](https://github.com/redmine-kit/redmine_aws_costexplorer); [Serverless](https://github.com/redmine-kit/serverless) installs them on AWS Lambda.
+
+[日本語](README.ja.md)
+
+> **Status:** early development. It is implemented and tested on Redmine 7.0.3.
+
+## Documentation
+
+- Website: https://redmine-kit.github.io/redmine_aws/ (日本語: https://redmine-kit.github.io/redmine_aws/ja/)
+- Markdown: [docs/README.md](docs/README.md) (日本語: [docs/ja/README.md](docs/ja/README.md)), with [setup](docs/setup.md), [IAM permissions](docs/iam.md), the [administration pages](docs/admin.md) and the [plugin API](docs/api.md)
+
+## Sponsors
+
+<a href="https://www.keyselect.co.jp/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/keyselect-logo-dark.svg">
+    <img alt="KEY SELECT" src=".github/assets/keyselect-logo.svg" width="136" height="29">
+  </picture>
+</a>
+&emsp;&emsp;
+<a href="https://localstack.cloud">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/localstack-logo-dark.svg">
+    <img alt="LocalStack" src=".github/assets/localstack-logo.svg" width="98" height="23">
+  </picture>
+</a>
+
+## License
+
+Redmine AWS is released under the GNU General Public License, version 2 or (at your option) any later version. See [LICENSE](LICENSE). An unofficial Redmine plugin.

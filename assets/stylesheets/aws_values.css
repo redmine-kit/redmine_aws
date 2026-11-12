@@ -1,0 +1,7 @@
+/* The tables of values of the Redmine AWS plugins (app/views/aws_admin/
+   _values.html.erb), as Administration > Information shows values. Core's
+   table.list lets a long value, such as an image URI with its 64-digit
+   digest, squeeze the name column until the names break mid-word: the
+   names keep to one line, and such a value wraps anywhere instead. */
+table.list.values td.name { white-space: nowrap; }
+table.list.values td.value { overflow-wrap: anywhere; }

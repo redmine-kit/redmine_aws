@@ -1,0 +1,9 @@
+ja:
+  label_aws: AWS
+  label_aws_status: ステータス
+  label_aws_versions: バージョン
+  label_aws_loaded_settings: Parameter Store
+  label_aws_connection_check: 接続テスト
+  label_aws_check_database: データベース
+  label_aws_ok: OK
+  label_aws_failed: 失敗

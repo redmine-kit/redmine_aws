@@ -1,0 +1,34 @@
+<%# Values to show, not to edit, as Administration › Information shows them
+    (Redmine Design Guide: Information): a table.list without a header row.
+    Shared by the Redmine AWS plugins (docs/api.md#values).
+    Locals:
+      rows  hashes with :name (td.name), and optionally :ok (true or false: a
+            td.tick with Redmine's icon, and the row's class ok or failed),
+            :value (a td) and :note (an em.info under the value, such as the
+            variable or setting it comes from)
+      css   more classes of the table (optional)
+    Its stylesheet (assets/stylesheets/aws_values.css) comes once per page. %>
+<% unless @aws_values_stylesheet %>
+<% @aws_values_stylesheet = true %>
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'aws_values', plugin: 'redmine_aws' %>
+<% end %>
+<% end %>
+<table class="list values <%= local_assigns[:css] %>">
+<% rows.each do |row| %>
+<tr<% unless row[:ok].nil? %> class="<%= row[:ok] ? 'ok' : 'failed' %>"<% end %>>
+  <td class="name"><%= row[:name] %></td>
+  <% unless row[:ok].nil? %>
+  <td class="tick">
+    <span class="icon-only icon-<%= row[:ok] ? 'ok' : 'error' %>">
+      <%= row[:ok] ? sprite_icon('checked', l(:label_aws_ok)) : sprite_icon('warning', l(:label_aws_failed)) %>
+    </span>
+  </td>
+  <% end %>
+  <% if row.key?(:value) || row.key?(:note) %>
+  <td class="value"><%= row[:value] %><% if row[:note] %> <em class="info"><%= row[:note] %></em><% end %></td>
+  <% end %>
+</tr>
+<% end %>
+</table>
+<br />

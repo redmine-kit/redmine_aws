@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: lint (Ruby ${{ matrix.ruby }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # The Rubies of Redmine 7.0 (3.2 to 4.0), pinned in
+        # test/ruby-<version>.Dockerfile.
+        ruby: ["3.2", "4.0"]
+    env:
+      TEST_RUBY: ${{ matrix.ruby }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: bin/lint
+
+  test:
+    needs: lint
+    name: test (Ruby ${{ matrix.ruby }})
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.2", "4.0"]
+    env:
+      TEST_RUBY: ${{ matrix.ruby }}
+    # id-token: Codecov's upload with OIDC, without a token secret.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      # The plugin's tests, then every Redmine test with the plugin installed.
+      - run: bin/test --redmine
+      # The plugin's coverage (coverage/coverage.xml, written by bin/test).
+      # Not failing the run while the Codecov app is not installed.
+      - if: matrix.ruby == '4.0'
+        uses: codecov/codecov-action@v7.1.1
+        with:
+          use_oidc: true
+          files: coverage/coverage.xml
+          fail_ci_if_error: false
+      - if: always()
+        run: bin/services --down
+
+  # The plugin as a gem (bin/test-gem): built, installed, linked into
+  # plugins/ and booted with eager_load, as adapters install it, before the
+  # other plugins and Serverless use the gem.
+  gem:
+    needs: lint
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: bin/test-gem
+      - if: always()
+        run: bin/services --down

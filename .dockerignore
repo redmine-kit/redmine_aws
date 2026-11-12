@@ -1,0 +1,12 @@
+*
+!init.rb
+!Gemfile
+!redmine_aws.gemspec
+!LICENSE
+!app/
+!assets/
+!boot/
+!config/
+!lib/
+!help/
+!test/

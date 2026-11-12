@@ -1,0 +1,9 @@
+<% loaded = status.loaded_settings %>
+<% unless loaded.nil? %>
+<h3><%= l(:label_aws_loaded_settings) %></h3>
+<% if loaded.any? %>
+<%= render partial: 'aws_admin/values', locals: { rows: loaded.map { |name| { name: tag.code(name) } } } %>
+<% else %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
+<% end %>

@@ -1,0 +1,9 @@
+en:
+  label_aws: AWS
+  label_aws_status: Status
+  label_aws_versions: Versions
+  label_aws_loaded_settings: Parameter Store
+  label_aws_connection_check: Connection test
+  label_aws_check_database: Database
+  label_aws_ok: OK
+  label_aws_failed: Failed
