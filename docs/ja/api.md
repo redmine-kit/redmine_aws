@@ -95,7 +95,7 @@ RedmineAws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda
     ] } %>
 ```
 
-`aws_admin/values` は、編集しない値 (バージョン、状態、確認の結果) を、「管理」›「情報」と同じ形で表示します ([Redmine Design Guide: 情報](https://redmine-kit.github.io/design-guide/ja/information.html))。ヘッダー行のない `table.list.values` と、そのあとの `<br />` です。各行はハッシュで、`name` (`td.name`) と、必要に応じて `value` (`td.value`)、`note` (値の下の `em.info`。値の元の環境変数や設定など)、`ok` (`true` か `false`。Redmine のアイコンの `td.tick` と、行のクラス `ok` か `failed`) を持ちます。`css` はテーブルにクラスを追加します (接続テストは `checks`)。Redmine AWS のどのプラグインも、編集しない値は、「ステータス」のタブでも自身のタブでも、これで表示します。
+`aws_admin/values` は、編集しない値 (バージョン、状態、確認の結果) を、「管理」›「情報」と同じ形で表示します ([Redmine Design Guide: 情報](https://redmine-kit.github.io/design-guide/ja/information.html))。ヘッダー行のない `table.list.values` と、そのあとの `<br />` です。各行はハッシュで、`name` (`td.name`) と、必要に応じて `value` (`td.value`)、`note` (値の下の `em.info`。値の元の環境変数や設定など)、`ok` (`true` か `false`。Redmine のアイコンの `td.tick` と、行のクラス `ok` か `failed`) を持ちます。`css` はテーブルにクラスを追加します (接続テストは `checks`)。部分テンプレートは、ページの表の数にかかわらず、スタイルシート (`assets/stylesheets/aws_values.css`) をページの `header_tags` に 1 回だけ追加します。名前は 1 行のままで、長い値 (digest 付きのイメージ URI など) は、名前を狭めずに、任意の位置で折り返します。Redmine AWS のどのプラグインも、編集しない値は、「ステータス」のタブでも自身のタブでも、これで表示します。
 
 <a id="aws-clients"></a>
 
