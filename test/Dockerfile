@@ -14,7 +14,10 @@ RUN curl -fsSLo /tmp/redmine.tar.gz "https://www.redmine.org/releases/redmine-${
 WORKDIR /redmine
 COPY test/database.yml config/database.yml
 COPY . plugins/redmine_aws/
-RUN printf "gem 'simplecov-cobertura', group: :test\n" > Gemfile.local \
+# simplecov-cobertura writes the coverage that Codecov reads (bin/test with
+# COVERAGE). Held at 3.2.0: 4.0 needs simplecov 1.x, and Redmine 7.0.3's
+# Gemfile pins simplecov ~> 0.22.0.
+RUN printf "gem 'simplecov-cobertura', '3.2.0', group: :test\n" > Gemfile.local \
   && bundle config set --local without development \
   && bundle install --jobs 4
 ENV RAILS_ENV=test

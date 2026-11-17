@@ -67,13 +67,14 @@ GitHub Packages からインストールするには、公開のパッケージ�
 
 テストは `test/` にあり、Redmine の標準の仕組みで、Docker の Redmine 7.0.3 と PostgreSQL 16 で実行します。`bin/test` は、プラグインのテストのあと、管理メニューとプラグインに関係する Redmine 本体のテストを実行します。`bin/test --redmine` は、プラグインをインストールした状態で Redmine 本体のすべてのテストを実行します。CI はこちらを使い、静的チェックとテストを Ruby 3.2 と 4.0 で実行します。ローカルでは、`TEST_RUBY=3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
 
-プラグインのテストは、プラグイン自身のファイルのカバレッジ (SimpleCov。Cobertura の XML の `coverage/coverage.xml`) も出力します。CI は、それを [Codecov](https://codecov.io/gh/redmine-kit/redmine_aws) に送信します。
+`COVERAGE=1` を付けると、プラグインのテストは、プラグイン自身のファイルのカバレッジ (SimpleCov。Cobertura の XML の `coverage/coverage.xml`) も出力し、1 プロセスで実行します。CI は Ruby 4.0 でこれを有効にし、レポートを `plugin` フラグで [Codecov](https://codecov.io/gh/redmine-kit/redmine_aws) に送信します。送信の認証は OIDC (`id-token: write`) なので、トークンをシークレットに保存しません。Codecov のステータスは参考情報で、コミットや Pull Request を失敗にしません (`codecov.yml`)。
 
 `bin/test-gem` は gem を確認します。チェックアウトから gem をビルドし、[gem](#gem) のとおりにインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。CI もこれを実行するので、gem にないファイルがあれば、ほかのプラグインや Serverless がインストールする前に失敗します。
 
 ```sh
 bin/test            # プラグインのテストと、関係する Redmine のテスト
 bin/test --redmine  # Redmine のすべてのテストも実行する
+COVERAGE=1 bin/test # カバレッジを coverage/coverage.xml に出力する
 bin/test-gem        # gem をビルド・インストールし、plugins/ にリンクして起動する
 bin/lint            # RuboCop
 bin/screenshots     # admin.md のスクリーンショット
