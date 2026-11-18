@@ -5,7 +5,7 @@ module RedmineKitAws
   # No secret values: only names.
   class Status
     def versions
-      plugins = Redmine::Plugin.all.select { |plugin| plugin.id.to_s.start_with?('redmine_kit_aws') }
+      plugins = Redmine::Plugin.all.select { |plugin| self.class.family?(plugin.id) }
       [['Redmine', Redmine::VERSION.to_s], ['Ruby', RUBY_VERSION], ['Rails', Rails.version]] +
         plugins.map { |plugin| [plugin.name.to_s, plugin.version.to_s] }
     end
@@ -14,6 +14,13 @@ module RedmineKitAws
     # installed (its boot file defines RedmineKitAws::SSM); nil otherwise.
     def loaded_settings
       RedmineKitAws::SSM.loaded if defined?(RedmineKitAws::SSM) && RedmineKitAws::SSM.respond_to?(:loaded)
+    end
+
+    # Whether a plugin id is of the family: redmine_kit_aws itself or one of
+    # its parts, redmine_kit_aws_<part>. Not every id that starts with
+    # redmine_kit_aws: another plugin may be named redmine_kit_awsome.
+    def self.family?(id)
+      id.to_s == 'redmine_kit_aws' || id.to_s.start_with?('redmine_kit_aws_')
     end
 
     # A new connection to the configured database, closed afterwards, so that

@@ -81,7 +81,7 @@ end
 RedmineKitAws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
 ```
 
-`register_status_section(name, partial:, position:)` は、ステータスのタブに項目を追加します。ビューのパーシャルを、ローカル変数 `status` (`RedmineKitAws::Status`) を渡して、タブ自身の項目 (バージョンは 20、Parameter Store は 30) の間の位置に表示します。接続テストは最後です。`status_sections` は、項目を順序どおりに返します。タブは、ID が `redmine_kit_aws` で始まるプラグインのバージョンを表示します。
+`register_status_section(name, partial:, position:)` は、ステータスのタブに項目を追加します。ビューのパーシャルを、ローカル変数 `status` (`RedmineKitAws::Status`) を渡して、タブ自身の項目 (バージョンは 20、Parameter Store は 30) の間の位置に表示します。接続テストは最後です。`status_sections` は、項目を順序どおりに返します。タブは、ファミリーのプラグインのバージョンを表示します。`redmine_kit_aws` と、ID が `redmine_kit_aws_` で始まるプラグインです (`RedmineKitAws::Status.family?`)。
 
 <a id="values"></a>
 

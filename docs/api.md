@@ -73,7 +73,7 @@ end
 RedmineKitAws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
 ```
 
-`register_status_section(name, partial:, position:)` adds a section to the Status tab: a view partial, rendered with the local `status` (a `RedmineKitAws::Status`), at a position among the tab's own sections (Versions 20, Parameter Store 30). The connection test comes last. `status_sections` returns the sections in order. The tab lists the versions of the plugins whose ids start with `redmine_kit_aws`.
+`register_status_section(name, partial:, position:)` adds a section to the Status tab: a view partial, rendered with the local `status` (a `RedmineKitAws::Status`), at a position among the tab's own sections (Versions 20, Parameter Store 30). The connection test comes last. `status_sections` returns the sections in order. The tab lists the versions of the family's plugins: `redmine_kit_aws` and the plugins whose ids start with `redmine_kit_aws_` (`RedmineKitAws::Status.family?`).
 
 ## Values
 
