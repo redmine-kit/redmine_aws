@@ -1,10 +1,10 @@
-# Redmine AWS
+# Redmine Kit AWS
 
 [![CI](https://img.shields.io/github/actions/workflow/status/redmine-kit/redmine_aws/ci.yml?branch=main&label=CI)](https://github.com/redmine-kit/redmine_aws/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/redmine-kit/redmine_aws?label=Coverage)](https://codecov.io/gh/redmine-kit/redmine_aws)
 [![License](https://img.shields.io/github/license/redmine-kit/redmine_aws?label=License)](LICENSE)
 
-Redmine AWS のプラグインが共通で使う Redmine のプラグインです。Redmine の管理メニューの「AWS」とプラグインごとのタブ、バージョンとデータベースや AWS のサービスへの接続テストを表示する「ステータス」のタブ、AWS クライアントの共通設定を持ちます。どのサーバーでも動きます。Redmine AWS のプラグインはどれもこのプラグインを必要とし、その gem がこのプラグインの gem に依存するので、いっしょにインストールされます。[Redmine AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda)、[Redmine AWS S3](https://github.com/redmine-kit/redmine_aws_s3)、[Redmine AWS SES](https://github.com/redmine-kit/redmine_aws_ses)、[Redmine AWS SQS](https://github.com/redmine-kit/redmine_aws_sqs)、[Redmine AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm)、[Redmine AWS Cost Explorer](https://github.com/redmine-kit/redmine_aws_costexplorer) です。[Serverless](https://github.com/redmine-kit/serverless) は、これらを AWS Lambda にインストールします。
+Redmine Kit AWS のプラグインが共通で使う Redmine のプラグインです。Redmine の管理メニューの「AWS」とプラグインごとのタブ、バージョンとデータベースや AWS のサービスへの接続テストを表示する「ステータス」のタブ、AWS クライアントの共通設定を持ちます。どのサーバーでも動きます。Redmine Kit AWS のプラグインはどれもこのプラグインを必要とし、その gem がこのプラグインの gem に依存するので、いっしょにインストールされます。[Redmine Kit AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda)、[Redmine Kit AWS S3](https://github.com/redmine-kit/redmine_aws_s3)、[Redmine Kit AWS SES](https://github.com/redmine-kit/redmine_aws_ses)、[Redmine Kit AWS SQS](https://github.com/redmine-kit/redmine_aws_sqs)、[Redmine Kit AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm)、[Redmine Kit AWS Cost Explorer](https://github.com/redmine-kit/redmine_aws_costexplorer) です。[Serverless](https://github.com/redmine-kit/serverless) は、これらを AWS Lambda にインストールします。
 
 [English](README.md)
 
@@ -32,4 +32,4 @@ Redmine AWS のプラグインが共通で使う Redmine のプラグインで�
 
 ## ライセンス
 
-Redmine AWS は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](LICENSE) を参照してください。Redmine の非公式のプラグインです。
+Redmine Kit AWS は、GNU General Public License バージョン 2 またはそれ以降のバージョンで公開しています。[LICENSE](LICENSE) を参照してください。Redmine の非公式のプラグインです。

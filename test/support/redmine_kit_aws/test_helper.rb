@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-module RedmineAws
-  # Helpers for the tests of the Redmine AWS plugins. A plugin's
+module RedmineKitAws
+  # Helpers for the tests of the Redmine Kit AWS plugins. A plugin's
   # test/test_helper.rb loads it after Redmine's test helper, from wherever
-  # redmine_aws is installed:
-  #   require File.join(Redmine::Plugin.find(:redmine_aws).directory, 'test/support/redmine_aws/test_helper')
+  # redmine_kit_aws is installed:
+  #   require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit_aws/test_helper')
   # and includes it in its own test helper module or in a test class.
   module TestHelper
     # The region and credentials of clients in tests; AWS Emulator (with its
@@ -24,16 +24,16 @@ module RedmineAws
       saved&.each { |name, value| value.nil? ? ENV.delete(name) : ENV[name] = value }
     end
 
-    # Runs the block with RedmineAws.client_options merged with the options,
-    # for example endpoint: to send every client built with RedmineAws.client
+    # Runs the block with RedmineKitAws.client_options merged with the options,
+    # for example endpoint: to send every client built with RedmineKitAws.client
     # to AWS Emulator (or to LocalStack or moto where a plugin's testing docs
     # say so).
     def with_aws_client_options(**options)
-      saved = RedmineAws.client_options
-      RedmineAws.client_options = saved.merge(options)
+      saved = RedmineKitAws.client_options
+      RedmineKitAws.client_options = saved.merge(options)
       yield
     ensure
-      RedmineAws.client_options = saved
+      RedmineKitAws.client_options = saved
     end
 
     # A client of the SDK class with response stubs (stub_responses), as in

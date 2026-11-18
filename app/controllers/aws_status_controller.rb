@@ -2,18 +2,18 @@
 
 # The "Status" tab (docs/admin.md#status).
 class AwsStatusController < ApplicationController
-  include RedmineAws::AdminTab
+  include RedmineKitAws::AdminTab
 
   def index
-    @status = RedmineAws::Status.new
+    @status = RedmineKitAws::Status.new
   end
 
   def check
-    @status = RedmineAws::Status.new
-    @results = RedmineAws::Admin.run_checks
+    @status = RedmineKitAws::Status.new
+    @results = RedmineKitAws::Admin.run_checks
     failed = @results.reject(&:ok).map(&:name)
     failed = failed.join(', ').presence || 'none'
-    logger&.info "[redmine_aws] #{User.current.login} ran the connection check; failed: #{failed}"
+    logger&.info "[redmine_kit_aws] #{User.current.login} ran the connection check; failed: #{failed}"
     render :index
   end
 end

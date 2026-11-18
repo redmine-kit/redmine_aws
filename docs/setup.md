@@ -1,6 +1,6 @@
 # Setup
 
-What a Redmine server needs to use Redmine AWS: installation, configuration, AWS resources, IAM permissions and network access. Every Redmine AWS plugin requires it, so it is installed with them. [Serverless](https://redmine-kit.github.io/serverless/) sets all of this up; this page is for setting it up by hand, or for checking what Serverless creates.
+What a Redmine server needs to use Redmine Kit AWS: installation, configuration, AWS resources, IAM permissions and network access. Every Redmine Kit AWS plugin requires it, so it is installed with them. [Serverless](https://redmine-kit.github.io/serverless/) sets all of this up; this page is for setting it up by hand, or for checking what Serverless creates.
 
 ## Requirements
 
@@ -9,19 +9,19 @@ What a Redmine server needs to use Redmine AWS: installation, configuration, AWS
 
 ## Installation
 
-1. Get the plugin into `plugins/redmine_aws` of Redmine 7.0: the gem below, or a checkout of this repository. The plugin has no gems of its own, so it needs no line in `Gemfile.local` for itself. With checkouts, the plugins that have a `boot/` file (Redmine AWS Lambda, SES, SQS and SSM) are added to `Gemfile.local` by path, and then `redmine_aws` is added by path too, once however many plugins are added (`gem 'redmine_aws', path: 'plugins/redmine_aws', require: false`; the setup of each plugin shows the lines).
-2. Install the Redmine AWS plugins that use it in `plugins/`, next to it. Redmine loads plugins in alphabetical order, so `redmine_aws` comes first; each of them checks that it is there (`requires_redmine_plugin :redmine_aws`).
+1. Get the plugin into `plugins/redmine_kit_aws` of Redmine 7.0: the gem below, or a checkout of this repository in a folder named after the plugin's id, which differs from the repository's name (`git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws`). The plugin has no gems of its own, so it needs no line in `Gemfile.local` for itself. With checkouts, the plugins that have a `boot/` file (Redmine Kit AWS Lambda, SES, SQS and SSM) are added to `Gemfile.local` by path, and then `redmine_kit_aws` is added by path too, once however many plugins are added (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`; the setup of each plugin shows the lines).
+2. Install the Redmine Kit AWS plugins that use it in `plugins/`, next to it. Redmine loads plugins in alphabetical order, so `redmine_kit_aws` comes first; each of them checks that it is there (`requires_redmine_plugin :redmine_kit_aws`).
 3. No migration is needed.
 
 ### Gem
 
-Each version tag (`v*`) publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`; `.github/workflows/gem.yml`). The gem holds the run-time files (`init.rb`, `boot/`, `lib/`, `app/`, `assets/`, `config/`, `help/`, `LICENSE`) and `test/support/`; the plugin's `Gemfile` is not in it. The gems of the other Redmine AWS plugins depend on it, so Bundler installs it with them. Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
+Each version tag (`v*`) publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`; `.github/workflows/gem.yml`). The gem holds the run-time files (`init.rb`, `boot/`, `lib/`, `app/`, `assets/`, `config/`, `help/`, `LICENSE`) and `test/support/`; the plugin's `Gemfile` is not in it. The gems of the other Redmine Kit AWS plugins depend on it, so Bundler installs it with them. Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
 
 ```sh
-ln -s "$(bundle info --path redmine_aws)" plugins/redmine_aws
+ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
 ```
 
-Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package (the setup of each plugin shows the `Gemfile.local` lines).
+Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package (the setup of each plugin shows the `Gemfile.local` lines). Bundler can also install the plugin from this repository, which needs no token: `gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false`.
 
 ## Configuration
 
@@ -31,7 +31,7 @@ The plugin has no settings of its own. The AWS clients of the plugins read the c
 | --- | --- | --- |
 | `AWS_REGION` | The region of the AWS clients, unless a plugin sets its own | Set by Lambda. Elsewhere, `AWS_REGION` or `AWS_DEFAULT_REGION` |
 
-To read settings and secrets from SSM Parameter Store at start-up, use [Redmine AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/). With it installed, the "Status" tab shows the names of the parameters read.
+To read settings and secrets from SSM Parameter Store at start-up, use [Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/). With it installed, the "Status" tab shows the names of the parameters read.
 
 ## AWS resources
 
@@ -65,7 +65,7 @@ bin/screenshots     # the screenshots of admin.md
 bin/services --down # stops PostgreSQL
 ```
 
-The other plugins' tests load this plugin from a checkout next to theirs (`../redmine_aws`, or the directory in `REDMINE_AWS_DIR`) ([api.md](api.md#tests-of-the-plugins)).
+The other plugins' tests load this plugin from a checkout next to theirs (`../redmine_kit_aws`, or the directory in `REDMINE_KIT_AWS_DIR`) ([api.md](api.md#tests-of-the-plugins)).
 
 ## To verify
 

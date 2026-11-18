@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The plugin as a gem, in Docker: builds the gem from this checkout, installs
 # it into Redmine 7.0.3 as docs/setup.md#gem says (installed, then
-# plugins/redmine_aws linked to the installed gem), and
+# plugins/redmine_kit_aws linked to the installed gem), and
 # boots Redmine through zeitwerk:check and in the production environment,
 # which loads every file at start-up (eager_load). It fails when the gem
 # misses a file that the checkout has.
@@ -11,35 +11,35 @@
 # shellcheck disable=SC2016
 set -euo pipefail
 cd "$(dirname "$0")/.."
-image=redmine-aws-test
+image=redmine-kit-aws-test
 bin/services >/dev/null
 # test/Dockerfile on the Ruby of TEST_RUBY, as bin/test builds it.
 ruby=$(sed -n 's/^FROM //p' "test/ruby-${TEST_RUBY:-4.0}.Dockerfile")
 sed "s|^FROM ruby:[^ ]*|FROM $ruby|" test/Dockerfile | docker buildx build --load -q -t "$image" -f - . >/dev/null
 # Two ways the gem comes into Redmine: as docs/setup.md#gem says, installed
 # but not required by Bundler (a dependency of another plugin's gem, or
-# require: false), so that Rails' code loader loads lib/redmine_aws.rb through
-# plugins/; and required early by Bundler (gem 'redmine_aws'), as a plugin's
+# require: false), so that Rails' code loader loads lib/redmine_kit_aws.rb through
+# plugins/; and required early by Bundler (gem 'redmine_kit_aws'), as a plugin's
 # boot/ file may do.
-docker run --rm --network redmine-aws-test_default "$image" sh -ec '
-  (cd plugins/redmine_aws && gem build --quiet redmine_aws.gemspec --output /tmp/redmine_aws.gem)
-  rm -rf plugins/redmine_aws
-  gem install --local --no-document --quiet /tmp/redmine_aws.gem
+docker run --rm --network redmine-kit-aws-test_default "$image" sh -ec '
+  (cd plugins/redmine_kit_aws && gem build --quiet redmine_kit_aws.gemspec --output /tmp/redmine_kit_aws.gem)
+  rm -rf plugins/redmine_kit_aws
+  gem install --local --no-document --quiet /tmp/redmine_kit_aws.gem
   # The production environment, which loads every file at start-up
   # (eager_load), on the test database.
   printf "%s\n" "production:" "  adapter: postgresql" "  host: postgres" "  database: redmine_test" \
     "  username: postgres" >> config/database.yml
-  for line in "gem '\''redmine_aws'\'', require: false" "gem '\''redmine_aws'\''"; do
+  for line in "gem '\''redmine_kit_aws'\'', require: false" "gem '\''redmine_kit_aws'\''"; do
     echo "== Gemfile.local: $line"
     printf "%s\n" "$line" "gem '\''simplecov-cobertura'\'', group: :test" > Gemfile.local
     bundle install --prefer-local --quiet
-    ln -sfn "$(bundle info --path redmine_aws)" plugins/redmine_aws
+    ln -sfn "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
     bin/rails db:drop db:create db:migrate redmine:plugins:migrate >/dev/null
     bin/rails zeitwerk:check
     RAILS_ENV=production SECRET_KEY_BASE=test-gem bin/rails runner "
-      plugin = Redmine::Plugin.find(:redmine_aws)
+      plugin = Redmine::Plugin.find(:redmine_kit_aws)
       dir = File.realpath(plugin.directory)
-      abort %(redmine_aws is not the installed gem: #{dir}) unless dir.start_with?(Gem.dir)
+      abort %(redmine_kit_aws is not the installed gem: #{dir}) unless dir.start_with?(Gem.dir)
       abort %(not eager loaded) unless Rails.application.config.eager_load
-      puts %(redmine_aws #{plugin.version} from #{dir}: #{RedmineAws::Admin.tabs.map(&:name).join(%(, ))})"
+      puts %(redmine_kit_aws #{plugin.version} from #{dir}: #{RedmineKitAws::Admin.tabs.map(&:name).join(%(, ))})"
   done'

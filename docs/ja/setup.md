@@ -1,6 +1,6 @@
 # 導入
 
-Redmine AWS を使う Redmine に必要なもの (インストール、設定、AWS リソース、IAM 権限、ネットワーク) です。Redmine AWS のプラグインはどれもこのプラグインを必要とするので、それらといっしょにインストールします。[Serverless](https://redmine-kit.github.io/serverless/ja/) は、これらをすべて用意します。このページは、手作業で用意するときや、Serverless が作成するものを確認するときのためのものです。
+Redmine Kit AWS を使う Redmine に必要なもの (インストール、設定、AWS リソース、IAM 権限、ネットワーク) です。Redmine Kit AWS のプラグインはどれもこのプラグインを必要とするので、それらといっしょにインストールします。[Serverless](https://redmine-kit.github.io/serverless/ja/) は、これらをすべて用意します。このページは、手作業で用意するときや、Serverless が作成するものを確認するときのためのものです。
 
 <a id="requirements"></a>
 
@@ -13,21 +13,21 @@ Redmine AWS を使う Redmine に必要なもの (インストール、設定、
 
 ## インストール
 
-1. プラグインを Redmine 7.0 の `plugins/redmine_aws` に置きます。下の gem か、このリポジトリのチェックアウトです。プラグイン自身が使う gem はないので、このプラグインのための `Gemfile.local` への追加は不要です。チェックアウトの場合、`boot/` のファイルを持つプラグイン (Redmine AWS Lambda、SES、SQS、SSM) はパスで `Gemfile.local` に追加し、そのときは `redmine_aws` もパスで追加します。いくつのプラグインを追加しても、`redmine_aws` の行は 1 つだけです (`gem 'redmine_aws', path: 'plugins/redmine_aws', require: false`。書く行は各プラグインの導入のページにあります)。
-2. このプラグインを使う Redmine AWS のプラグインを、このプラグインと同じ `plugins/` にインストールします。Redmine はプラグインをアルファベット順に読み込むので、`redmine_aws` が先になります。各プラグインは、このプラグインがあることを確認します (`requires_redmine_plugin :redmine_aws`)。
+1. プラグインを Redmine 7.0 の `plugins/redmine_kit_aws` に置きます。下の gem か、このリポジトリのチェックアウトです。チェックアウトのディレクトリ名は、リポジトリ名ではなく、プラグインの ID にします (`git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws`)。プラグイン自身が使う gem はないので、このプラグインのための `Gemfile.local` への追加は不要です。チェックアウトの場合、`boot/` のファイルを持つプラグイン (Redmine Kit AWS Lambda、SES、SQS、SSM) はパスで `Gemfile.local` に追加し、そのときは `redmine_kit_aws` もパスで追加します。いくつのプラグインを追加しても、`redmine_kit_aws` の行は 1 つだけです (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`。書く行は各プラグインの導入のページにあります)。
+2. このプラグインを使う Redmine Kit AWS のプラグインを、このプラグインと同じ `plugins/` にインストールします。Redmine はプラグインをアルファベット順に読み込むので、`redmine_kit_aws` が先になります。各プラグインは、このプラグインがあることを確認します (`requires_redmine_plugin :redmine_kit_aws`)。
 3. migration は不要です。
 
 <a id="gem"></a>
 
 ### gem
 
-バージョンのタグ (`v*`) ごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します (`.github/workflows/gem.yml`)。gem には、実行に必要なファイル (`init.rb`、`boot/`、`lib/`、`app/`、`assets/`、`config/`、`help/`、`LICENSE`) と `test/support/` が入ります。プラグインの `Gemfile` は入れません。ほかの Redmine AWS のプラグインの gem がこの gem に依存するので、Bundler がいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
+バージョンのタグ (`v*`) ごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します (`.github/workflows/gem.yml`)。gem には、実行に必要なファイル (`init.rb`、`boot/`、`lib/`、`app/`、`assets/`、`config/`、`help/`、`LICENSE`) と `test/support/` が入ります。プラグインの `Gemfile` は入れません。ほかの Redmine Kit AWS のプラグインの gem がこの gem に依存するので、Bundler がいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
 
 ```sh
-ln -s "$(bundle info --path redmine_aws)" plugins/redmine_aws
+ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
 ```
 
-GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です (`Gemfile.local` に書く行は、各プラグインの導入のページにあります)。
+GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です (`Gemfile.local` に書く行は、各プラグインの導入のページにあります)。Bundler は、このリポジトリからもプラグインをインストールできます。この場合、トークンは不要です (`gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false`)。
 
 <a id="configuration"></a>
 
@@ -39,7 +39,7 @@ GitHub Packages からインストールするには、公開のパッケージ�
 | --- | --- | --- |
 | `AWS_REGION` | AWS クライアントのリージョン。プラグインが自分のリージョンを指定する場合を除く | Lambda が設定する。それ以外では `AWS_REGION` か `AWS_DEFAULT_REGION` |
 
-起動時に SSM Parameter Store から設定とシークレットを読み込むには、[Redmine AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/ja/) を使います。これをインストールすると、「ステータス」のタブに、読み込んだパラメーターの名前が表示されます。
+起動時に SSM Parameter Store から設定とシークレットを読み込むには、[Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/ja/) を使います。これをインストールすると、「ステータス」のタブに、読み込んだパラメーターの名前が表示されます。
 
 <a id="aws-resources"></a>
 
@@ -81,7 +81,7 @@ bin/screenshots     # admin.md のスクリーンショット
 bin/services --down # PostgreSQL を停止する
 ```
 
-ほかのプラグインのテストは、このプラグインを隣のチェックアウト (`../redmine_aws`、または `REDMINE_AWS_DIR` のディレクトリ) から読み込みます ([api.md](api.md#tests-of-the-plugins))。
+ほかのプラグインのテストは、このプラグインを隣のチェックアウト (`../redmine_kit_aws`、または `REDMINE_KIT_AWS_DIR` のディレクトリ) から読み込みます ([api.md](api.md#tests-of-the-plugins))。
 
 <a id="to-verify"></a>
 

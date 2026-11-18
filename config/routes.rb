@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# The AWS administration menu; the other Redmine AWS plugins add their tabs
+# The AWS administration menu; the other Redmine Kit AWS plugins add their tabs
 # under admin/aws.
 get 'admin/aws', to: 'aws_admin#index'
 

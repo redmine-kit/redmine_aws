@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RedmineAws
+module RedmineKitAws
   # For the controller of a tab of the AWS administration page: Redmine's
   # administration layout with the "AWS" menu item selected, for
   # administrators only (require_admin, as on Redmine's own administration

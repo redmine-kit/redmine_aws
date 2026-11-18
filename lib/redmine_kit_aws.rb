@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 # Also when code that runs before Rails requires this file: the code loader
-# then names the files in RedmineAws while it sets up.
-require_relative '../boot/redmine_aws/inflections'
+# then names the files in RedmineKitAws while it sets up.
+require_relative '../boot/redmine_kit_aws/inflections'
 
-# What the Redmine AWS plugins share (docs/README.md): the "AWS" item of the
+# What the Redmine Kit AWS plugins share (docs/README.md): the "AWS" item of the
 # administration menu with its tabs and connection checks (Admin), the Status
 # tab, and the settings of the AWS clients. It works on any server and calls
 # no AWS API itself.
-module RedmineAws
+module RedmineKitAws
   VERSION = '0.1.0'
 
   class << self
@@ -21,7 +21,7 @@ module RedmineAws
       Admin.register_check(:database, label: :label_aws_check_database) { Status.database_check }
     end
 
-    # Options that every AWS client built with RedmineAws.client gets, over
+    # Options that every AWS client built with RedmineKitAws.client gets, over
     # the SDK's own settings. Empty unless set: the SDK then reads the
     # credentials, the region and the endpoints from the environment and the
     # instance or function role, as usual (AWS_REGION, AWS_ENDPOINT_URL,
@@ -41,7 +41,7 @@ module RedmineAws
       ENV['AWS_REGION'].presence || ENV.fetch('AWS_DEFAULT_REGION', nil).presence
     end
 
-    # A client of an AWS service, such as RedmineAws.client(Aws::S3::Client).
+    # A client of an AWS service, such as RedmineKitAws.client(Aws::S3::Client).
     # The options given here (a region of the plugin's own, timeouts) come
     # before client_options, so that tests can replace them.
     def client(klass, **)

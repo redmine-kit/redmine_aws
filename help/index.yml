@@ -2,5 +2,5 @@
 # (https://github.com/redmine-kit/redmine_help, docs/extending.md).
 sections:
   - id: aws
-    title: Redmine AWS
+    title: Redmine Kit AWS
     topics: [aws/status]

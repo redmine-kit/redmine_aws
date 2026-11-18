@@ -1,6 +1,6 @@
 <%# Values to show, not to edit, as Administration › Information shows them
     (Redmine Design Guide: Information): a table.list without a header row.
-    Shared by the Redmine AWS plugins (docs/api.md#values).
+    Shared by the Redmine Kit AWS plugins (docs/api.md#values).
     Locals:
       rows  hashes with :name (td.name), and optionally :ok (true or false: a
             td.tick with Redmine's icon, and the row's class ok or failed),
@@ -11,7 +11,7 @@
 <% unless @aws_values_stylesheet %>
 <% @aws_values_stylesheet = true %>
 <% content_for :header_tags do %>
-  <%= stylesheet_link_tag 'aws_values', plugin: 'redmine_aws' %>
+  <%= stylesheet_link_tag 'aws_values', plugin: 'redmine_kit_aws' %>
 <% end %>
 <% end %>
 <table class="list values <%= local_assigns[:css] %>">

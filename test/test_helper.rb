@@ -19,4 +19,4 @@ if ENV['PLUGIN_COVERAGE'] && !(defined?(SimpleCov) && SimpleCov.running)
 end
 
 require File.expand_path('../../../test/test_helper', __dir__)
-require File.join(Redmine::Plugin.find(:redmine_aws).directory, 'test/support/redmine_aws/test_helper')
+require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit_aws/test_helper')

@@ -2,13 +2,13 @@
 
 require Rails.root.join('test/application_system_test_case').to_s
 
-module RedmineAws
+module RedmineKitAws
   # Takes the screenshots of a plugin's docs (its bin/screenshots): each
   # screen in English into docs/images/ and in Japanese into docs/ja/images/
   # of the plugin, cropped to an element of the page. Redmine's test data
   # (fixtures) fills the screens. A plugin's test/screenshots/screens.rb
   # loads its test helper, then this file, and sets docs in
-  # RedmineAws::<Plugin>::ScreenshotsTest < RedmineAws::ScreenshotCase:
+  # RedmineKitAws::<Plugin>::ScreenshotsTest < RedmineKitAws::ScreenshotCase:
   #   self.docs = File.expand_path('../../docs', __dir__)
   class ScreenshotCase < ApplicationSystemTestCase
     LANGUAGES = { 'en' => 'images', 'ja' => 'ja/images' }.freeze

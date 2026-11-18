@@ -2,7 +2,7 @@
 
 require_relative '../test_helper'
 
-module RedmineAws
+module RedmineKitAws
   class ClientTest < ActiveSupport::TestCase
     # Stands for an SDK client class: keeps the options it is built with.
     FakeClient = Struct.new(:options) do
@@ -19,49 +19,49 @@ module RedmineAws
 
     def teardown
       @saved.each { |name, value| value.nil? ? ENV.delete(name) : ENV[name] = value }
-      RedmineAws.client_options = nil
+      RedmineKitAws.client_options = nil
     end
 
     def test_without_settings_the_sdk_decides
-      assert_nil RedmineAws.region
-      assert_equal({}, RedmineAws.client(FakeClient).options)
+      assert_nil RedmineKitAws.region
+      assert_equal({}, RedmineKitAws.client(FakeClient).options)
     end
 
     def test_the_region_from_the_environment
       ENV['AWS_DEFAULT_REGION'] = 'eu-west-1'
 
-      assert_equal 'eu-west-1', RedmineAws.region
+      assert_equal 'eu-west-1', RedmineKitAws.region
       ENV['AWS_REGION'] = 'ap-northeast-1'
 
-      assert_equal 'ap-northeast-1', RedmineAws.region
-      assert_equal({ region: 'ap-northeast-1' }, RedmineAws.client(FakeClient).options)
+      assert_equal 'ap-northeast-1', RedmineKitAws.region
+      assert_equal({ region: 'ap-northeast-1' }, RedmineKitAws.client(FakeClient).options)
     end
 
     def test_the_plugin_options_over_the_region
       ENV['AWS_REGION'] = 'ap-northeast-1'
 
       assert_equal({ region: 'us-east-1', retry_limit: 0 },
-                   RedmineAws.client(FakeClient, region: 'us-east-1', retry_limit: 0).options)
+                   RedmineKitAws.client(FakeClient, region: 'us-east-1', retry_limit: 0).options)
     end
 
     def test_client_options_over_everything
       ENV['AWS_REGION'] = 'ap-northeast-1'
-      RedmineAws.client_options = { endpoint: 'https://127.0.0.1:9297', region: 'us-east-1' }
+      RedmineKitAws.client_options = { endpoint: 'https://127.0.0.1:9297', region: 'us-east-1' }
 
       assert_equal({ region: 'us-east-1', retry_limit: 0, endpoint: 'https://127.0.0.1:9297' },
-                   RedmineAws.client(FakeClient, region: 'eu-west-1', retry_limit: 0).options)
+                   RedmineKitAws.client(FakeClient, region: 'eu-west-1', retry_limit: 0).options)
     end
 
     def test_env_true
       ENV['FLAG'] = ' True '
 
-      assert RedmineAws.env_true?('FLAG')
+      assert RedmineKitAws.env_true?('FLAG')
       ENV['FLAG'] = '1'
 
-      assert_not RedmineAws.env_true?('FLAG')
+      assert_not RedmineKitAws.env_true?('FLAG')
       ENV.delete('FLAG')
 
-      assert_not RedmineAws.env_true?('FLAG')
+      assert_not RedmineKitAws.env_true?('FLAG')
     end
   end
 end

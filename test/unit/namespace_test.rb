@@ -5,25 +5,25 @@ require 'fileutils'
 require 'open3'
 require 'tempfile'
 
-module RedmineAws
-  # The RedmineAws namespace is shared: the other Redmine AWS plugins put
-  # their code under it (lib/redmine_aws/<plugin>.rb, with the names of the
-  # AWS SDK: ses.rb defines RedmineAws::SES), and their boot/ files, which
+module RedmineKitAws
+  # The RedmineKitAws namespace is shared: the other Redmine Kit AWS plugins put
+  # their code under it (lib/redmine_kit_aws/<plugin>.rb, with the names of the
+  # AWS SDK: ses.rb defines RedmineKitAws::SES), and their boot/ files, which
   # Bundler loads before Rails, may define it before Redmine's code loader
   # (Zeitwerk) sets up. Checked in new processes, as at start-up, with a
-  # plugin whose files are named as theirs (test/fixtures/redmine_aws_names).
+  # plugin whose files are named as theirs (test/fixtures/redmine_kit_aws_names).
   # One test, so that the plugin is in plugins/ for no other test.
   class NamespaceTest < ActiveSupport::TestCase
-    FIXTURE = File.expand_path('../fixtures/redmine_aws_names', __dir__)
-    PLUGIN = Rails.root.join('plugins/redmine_aws_names').to_s
+    FIXTURE = File.expand_path('../fixtures/redmine_kit_aws_names', __dir__)
+    PLUGIN = Rails.root.join('plugins/redmine_kit_aws_names').to_s
 
     # What a boot/ file of another plugin does, after Bundler has loaded the
     # gems (bin/rails then loads them again, without effect).
     def early_boot
       <<~RUBY
         require 'bundler/setup'
-        require #{File.join(Redmine::Plugin.find(:redmine_aws).directory, 'boot/redmine_aws/inflections').inspect}
-        module RedmineAws
+        require #{File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'boot/redmine_kit_aws/inflections').inspect}
+        module RedmineKitAws
           module Early
           end
         end
@@ -32,10 +32,10 @@ module RedmineAws
 
     # The constants of the fixture plugin's files, and a script that prints
     # the version, the tabs and their names.
-    NAMES = %w[RedmineAws::SES RedmineAws::SES::Receiver RedmineAws::SQS RedmineAws::SSM
-               RedmineAws::CostExplorer].freeze
+    NAMES = %w[RedmineKitAws::SES RedmineKitAws::SES::Receiver RedmineKitAws::SQS RedmineKitAws::SSM
+               RedmineKitAws::CostExplorer].freeze
     SCRIPT = [
-      'print RedmineAws::VERSION, " ", RedmineAws::Admin.tabs.map(&:name).join(","), " ", ',
+      'print RedmineKitAws::VERSION, " ", RedmineKitAws::Admin.tabs.map(&:name).join(","), " ", ',
       "[#{NAMES.join(', ')}].map(&:name).join(\",\")"
     ].join.freeze
 

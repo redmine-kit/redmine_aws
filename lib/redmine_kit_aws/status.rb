@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-module RedmineAws
+module RedmineKitAws
   # What the "Status" tab shows (docs/admin.md#status).
   # No secret values: only names.
   class Status
     def versions
-      plugins = Redmine::Plugin.all.select { |plugin| plugin.id.to_s.start_with?('redmine_aws') }
+      plugins = Redmine::Plugin.all.select { |plugin| plugin.id.to_s.start_with?('redmine_kit_aws') }
       [['Redmine', Redmine::VERSION.to_s], ['Ruby', RUBY_VERSION], ['Rails', Rails.version]] +
         plugins.map { |plugin| [plugin.name.to_s, plugin.version.to_s] }
     end
 
-    # Names read from SSM Parameter Store at start-up, when Redmine AWS SSM is
-    # installed (its boot file defines RedmineAws::SSM); nil otherwise.
+    # Names read from SSM Parameter Store at start-up, when Redmine Kit AWS SSM is
+    # installed (its boot file defines RedmineKitAws::SSM); nil otherwise.
     def loaded_settings
-      RedmineAws::SSM.loaded if defined?(RedmineAws::SSM) && RedmineAws::SSM.respond_to?(:loaded)
+      RedmineKitAws::SSM.loaded if defined?(RedmineKitAws::SSM) && RedmineKitAws::SSM.respond_to?(:loaded)
     end
 
     # A new connection to the configured database, closed afterwards, so that

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module RedmineAws
+module RedmineKitAws
   # The "AWS" item of Redmine's administration menu (docs/admin.md#the-aws-menu).
-  # Each Redmine AWS plugin registers its tab and its connection check here
+  # Each Redmine Kit AWS plugin registers its tab and its connection check here
   # from its init.rb; the first tab adds the menu item.
   module Admin
     Tab = Struct.new(:name, :label, :url, :position, keyword_init: true)
@@ -36,7 +36,7 @@ module RedmineAws
       end
 
       # A part of the Status tab: a view partial, rendered with the local
-      # status (a RedmineAws::Status), at a position among the tab's own parts
+      # status (a RedmineKitAws::Status), at a position among the tab's own parts
       # (Versions 20, Parameter Store 30). The connection test comes last.
       def register_status_section(name, partial:, position:)
         @status_sections[name.to_s] = Section.new(name: name.to_s, partial: partial, position: position)
@@ -77,7 +77,7 @@ module RedmineAws
       def call_check(check)
         [true, check.run.call.to_s]
       rescue StandardError => e
-        Rails.logger.error "[redmine_aws] connection check #{check.name} failed: #{e.class}: #{e.message}"
+        Rails.logger.error "[redmine_kit_aws] connection check #{check.name} failed: #{e.class}: #{e.message}"
         [false, e.class.name]
       end
 
@@ -88,7 +88,7 @@ module RedmineAws
           menu.push :aws, { controller: 'aws_admin', action: 'index' },
                     caption: :label_aws, icon: 'server-authentication',
                     html: { class: 'icon icon-server-authentication' },
-                    if: ->(_project) { RedmineAws::Admin.routed? }
+                    if: ->(_project) { RedmineKitAws::Admin.routed? }
         end
       end
     end

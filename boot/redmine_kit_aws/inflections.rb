@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-# The constant names of the Redmine AWS plugins' files under lib/redmine_aws/,
+# The constant names of the Redmine Kit AWS plugins' files under lib/redmine_kit_aws/,
 # spelled as the AWS SDK for Ruby spells the services
-# (docs/api.md#namespace-and-files): lib/redmine_aws/ses.rb defines
-# RedmineAws::SES. init.rb loads this file; a plugin whose boot/ file defines
-# anything under RedmineAws requires it first ('redmine_aws/inflections'),
-# because the code loader then names the files under lib/redmine_aws/ while it
+# (docs/api.md#namespace-and-files): lib/redmine_kit_aws/ses.rb defines
+# RedmineKitAws::SES. init.rb loads this file; a plugin whose boot/ file defines
+# anything under RedmineKitAws requires it first ('redmine_kit_aws/inflections'),
+# because the code loader then names the files under lib/redmine_kit_aws/ while it
 # sets up, before any init.rb runs.
 #
 # The names go to Rails' code loaders in the before_initialize hook (at once
