@@ -25,12 +25,12 @@ class AwsAdminControllerTest < Redmine::ControllerTest
 
   def test_registering_again_keeps_one_menu_item
     url = { controller: 'aws_status', action: 'index' }
-    RedmineKitAws::Admin.register_tab(:extra, label: :label_aws_status, url: url, position: 99)
+    RedmineKit::Aws::Admin.register_tab(:extra, label: :label_aws_status, url: url, position: 99)
     items = Redmine::MenuManager.items(:admin_menu).children.select { |item| item.name == :aws }
 
     assert_equal 1, items.size
-    assert_equal %w[status extra], RedmineKitAws::Admin.tabs.map(&:name).values_at(0, -1)
+    assert_equal %w[status extra], RedmineKit::Aws::Admin.tabs.map(&:name).values_at(0, -1)
   ensure
-    RedmineKitAws::Admin.instance_variable_get(:@tabs).delete('extra')
+    RedmineKit::Aws::Admin.instance_variable_get(:@tabs).delete('extra')
   end
 end

@@ -31,7 +31,7 @@ else
 fi
 # Two ways the gem comes into Redmine: as docs/setup.md#gem says, installed
 # but not required by Bundler (a dependency of another plugin's gem, or
-# require: false), so that Rails' code loader loads lib/redmine_kit_aws.rb through
+# require: false), so that Rails' code loader loads lib/redmine_kit/aws.rb through
 # plugins/; and required early by Bundler (gem 'redmine_kit_aws'), as a plugin's
 # boot/ file may do. A database of this run's own, dropped at the end.
 "$cli" run --rm "${net[@]}" -e TEST_DATABASE="redmine_test_$$" "$image" sh -ec '
@@ -54,6 +54,6 @@ fi
       dir = File.realpath(plugin.directory)
       abort %(redmine_kit_aws is not the installed gem: #{dir}) unless dir.start_with?(Gem.dir)
       abort %(not eager loaded) unless Rails.application.config.eager_load
-      puts %(redmine_kit_aws #{plugin.version} from #{dir}: #{RedmineKitAws::Admin.tabs.map(&:name).join(%(, ))})"
+      puts %(redmine_kit_aws #{plugin.version} from #{dir}: #{RedmineKit::Aws::Admin.tabs.map(&:name).join(%(, ))})"
   done
   bin/rails db:drop >/dev/null'

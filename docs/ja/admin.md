@@ -38,7 +38,7 @@ Redmine Kit AWS のプラグインは、管理画面を Redmine の管理メニ�
 
 | 項目 | 内容 |
 | --- | --- |
-| 項目は 1 つ | メニューはこのプラグインが持ちます。登録先の `RedmineKitAws::Admin`、コントローラーの `AwsAdminController`、ビューの `aws_admin/_tabs` です。各プラグインは、`init.rb` から自分のタブと接続テストを登録します (`register_tab`、`register_check`。[api.md](api.md))。最初の登録がメニューの項目を追加します。項目は `/admin/aws` を開き、そこから最初のタブに移動します |
+| 項目は 1 つ | メニューはこのプラグインが持ちます。登録先の `RedmineKit::Aws::Admin`、コントローラーの `AwsAdminController`、ビューの `aws_admin/_tabs` です。各プラグインは、`init.rb` から自分のタブと接続テストを登録します (`register_tab`、`register_check`。[api.md](api.md))。最初の登録がメニューの項目を追加します。項目は `/admin/aws` を開き、そこから最初のタブに移動します |
 | タブの順序 | ステータス、ジョブ、メール送信、メール受信、S3、Cost Explorer。タブは、そのプラグインをインストールしているときだけ表示されます |
 | プラグイン一覧から | プラグインは Redmine のプラグインの設定画面を持たないので、プラグイン一覧に「設定」のリンクは表示されません。設定は、それぞれのタブにあります |
 | プロジェクトの設定 | Redmine Kit AWS SES がプロジェクトの設定に追加する「メール」のタブは、このメニューに含みません |
@@ -52,7 +52,7 @@ Redmine Kit AWS のプラグインは、管理画面を Redmine の管理メニ�
 | 項目 | 内容 | 取得元 |
 | --- | --- | --- |
 | バージョン | Redmine、Ruby、Rails、インストールした Redmine Kit AWS のプラグイン | Redmine の「情報」の画面と同じもの |
-| Parameter Store | Parameter Store から設定した変数の名前 (値は表示しない)。すでに設定されていた変数は、値を変えず、一覧にも含めない。[Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/ja/) をインストールしたときに表示する | 起動時に読み込んだ結果 (`RedmineKitAws::SSM.loaded`) |
+| Parameter Store | Parameter Store から設定した変数の名前 (値は表示しない)。すでに設定されていた変数は、値を変えず、一覧にも含めない。[Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/ja/) をインストールしたときに表示する | 起動時に読み込んだ結果 (`RedmineKit::Aws::Ssm.loaded`) |
 | ほかのプラグインの値 | ほかのプラグインが追加する項目 (`register_status_section`。[api.md](api.md#the-status-tab))。Redmine Kit AWS Lambda は、バージョンの前に Lambda 関数を、後に読み取り専用の設定を追加する ([そのプラグインの admin.md](https://redmine-kit.github.io/redmine_aws_lambda/ja/admin.html)) | 追加するプラグイン |
 | 接続テスト | データベースと、インストールしたプラグインの AWS のサービスに接続できるか、応答時間 (ミリ秒) | 「テスト」を押したときに、軽い呼び出しを 1 回ずつ実行する (下の表) |
 

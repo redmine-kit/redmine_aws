@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # The "AWS" item of the administration menu: opens the first tab of the
-# installed Redmine Kit AWS plugins (RedmineKitAws::Admin).
+# installed Redmine Kit AWS plugins (RedmineKit::Aws::Admin).
 class AwsAdminController < ApplicationController
-  include RedmineKitAws::AdminTab
+  include RedmineKit::Aws::AdminTab
 
   def index
-    tab = RedmineKitAws::Admin.tabs.first
+    tab = RedmineKit::Aws::Admin.tabs.first
     tab ? redirect_to(tab.url) : render_404
   end
 end

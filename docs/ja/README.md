@@ -32,7 +32,7 @@ Redmine Kit AWS のプラグイン (`redmine_kit_aws_*`) は、例外なく、�
 
 ## コード構成
 
-タブと接続テストの登録先は `RedmineKitAws::Admin` (`lib/redmine_kit_aws/admin.rb`)、メニューの項目のページは `AwsAdminController`、ステータスのタブは `AwsStatusController` と `RedmineKitAws::Status`、AWS クライアントの設定は `RedmineKitAws` (`lib/redmine_kit_aws.rb`) です。Redmine が `lib/` と `app/` を読み込み、`init.rb` がステータスのタブとデータベースの確認を登録します。`boot/redmine_kit_aws/inflections.rb` は、各プラグインのファイルのモジュール名を Rails のコードローダーに登録します ([api.md](api.md#namespace-and-files))。`test/support/redmine_kit_aws/` には、ほかのプラグインのテストが読み込むテストヘルパーがあります。ほかの Redmine Kit AWS のプラグインも、コードを同じ名前空間に置きます (`RedmineKitAws::Lambda`、`RedmineKitAws::S3` など。[api.md](api.md#namespace-and-files))。
+タブと接続テストの登録先は `RedmineKit::Aws::Admin` (`lib/redmine_kit/aws/admin.rb`)、メニューの項目のページは `AwsAdminController`、ステータスのタブは `AwsStatusController` と `RedmineKit::Aws::Status`、AWS クライアントの設定は `RedmineKit::Aws` (`lib/redmine_kit/aws.rb`) です。Redmine が `lib/` と `app/` を読み込み、`init.rb` がステータスのタブとデータベースの確認を登録します。`test/support/redmine_kit/aws/` には、ほかのプラグインのテストが読み込むテストヘルパーがあります。ほかの Redmine Kit AWS のプラグインも、コードを同じ名前空間に置きます (`RedmineKit::Aws::Lambda`、`RedmineKit::Aws::S3` など。[api.md](api.md#namespace-and-files))。
 
 プラグインは自分では AWS の API を呼ばないので、AWS SDK の gem は不要です。AWS を呼ぶプラグインが、それぞれの gem を持ちます。データベースのテーブルを追加しないので、実行する migration はありません。コードには、Redmine の標準の仕組みでテストを書いています ([setup.md](setup.md#tests))。
 
@@ -45,7 +45,7 @@ Redmine Kit AWS のプラグイン (`redmine_kit_aws_*`) は、例外なく、�
 | AWS メニュー | タブを追加で登録しても、メニューの項目は 1 つ。最初のタブを開く。システム管理者だけ |
 | ステータス | バージョン。Redmine Kit AWS SSM が設定した変数の名前。プラグインが追加する項目とその順序。シークレットを画面に出さない。データベースの確認と、失敗する確認。システム管理者だけ |
 | AWS クライアント | `AWS_REGION` と `AWS_DEFAULT_REGION` から決まるリージョン。オプションの優先順位。テストヘルパーがオプションと環境変数を設定して元に戻す |
-| コードの読み込み | 新しいプロセスで、各プラグインと同じ名前のファイル (`RedmineKitAws::SES` の `ses.rb` など) を持つプラグインを使って確認する。`zeitwerk:check` が通り、モジュールを読み込める。ほかのプラグインの boot のファイルのように Rails より前に名前空間 `RedmineKitAws` を定義しても同じ |
+| コードの読み込み | 新しいプロセスで、各プラグインと同じ名前のファイル (`RedmineKit::Aws::Ses` の `ses.rb` など) を持つプラグインを使って確認する。`zeitwerk:check` が通り、モジュールを読み込める。ほかのプラグインの boot のファイルのように Rails より前に名前空間 `RedmineKit::Aws` を定義しても同じ |
 
 <a id="sponsors"></a>
 

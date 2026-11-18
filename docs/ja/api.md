@@ -18,22 +18,22 @@ Redmine はプラグインをアルファベット順に読み込むので、ほ
 
 ## 名前空間とファイル
 
-Redmine Kit AWS のプラグインは、どれもコードを名前空間 `RedmineKitAws` の下に置きます。名前空間はこのプラグインが `lib/redmine_kit_aws.rb` で定義します。Redmine のコードローダー (Zeitwerk) は、インストールしたすべてのプラグインの `lib/` からこの名前空間を読み込みます。
+Redmine Kit AWS のプラグインは、どれもコードを名前空間 `RedmineKit::Aws` の下に置きます。名前空間はこのプラグインが `lib/redmine_kit/aws.rb` で定義します。その上の `RedmineKit` は Redmine Kit のすべてのプラグインの名前空間で、どのプラグインのものでもありません。`lib/redmine_kit.rb` を持つプラグインはなく、Redmine のコードローダー (Zeitwerk) が、各プラグインの `lib/redmine_kit/` ディレクトリからモジュールを作ります。Redmine は各プラグインの `lib/` をローダーのルートディレクトリにするからです。各プラグインのテストは、`lib/redmine_kit.rb` があると失敗します。
 
 | プラグイン | モジュール | ファイル |
 | --- | --- | --- |
-| `redmine_kit_aws_lambda` | `RedmineKitAws::Lambda` | `lib/redmine_kit_aws/lambda.rb` (`VERSION` と `setup` を持つモジュール)、`lib/redmine_kit_aws/lambda/*.rb` |
-| `redmine_kit_aws_s3` | `RedmineKitAws::S3` | `lib/redmine_kit_aws/s3.rb`、`lib/redmine_kit_aws/s3/*.rb` |
+| `redmine_kit_aws_lambda` | `RedmineKit::Aws::Lambda` | `lib/redmine_kit/aws/lambda.rb` (`VERSION` と `setup` を持つモジュール)、`lib/redmine_kit/aws/lambda/*.rb` |
+| `redmine_kit_aws_s3` | `RedmineKit::Aws::S3` | `lib/redmine_kit/aws/s3.rb`、`lib/redmine_kit/aws/s3/*.rb` |
 
-ほかのプラグインも同じ規則で、モジュール名は AWS SDK for Ruby の綴りに、ファイル名は小文字にします。`lib/redmine_kit_aws/ses.rb` の `RedmineKitAws::SES`、`sqs.rb` の `RedmineKitAws::SQS`、`costexplorer.rb` の `RedmineKitAws::CostExplorer` です。この名前は、このプラグインが Rails のコードローダーに登録します (`boot/redmine_kit_aws/inflections.rb`)。プラグインのディレクトリの中のファイルは通常どおりの名前です (`lib/redmine_kit_aws/ses/receiver.rb` は `RedmineKitAws::SES::Receiver`)。名前空間の中では、AWS SDK を `::Aws::S3::Client` のように書き、`RedmineKitAws::S3` を `Aws::S3` と取り違えないようにします。`app/` のクラスはトップレベルのままです (`AwsS3AdminController`)。このプラグインが `RedmineKitAws` の直下に定義する名前 (`VERSION`、`setup`、`client`、`Admin`、`AdminTab`、`Status`、`TestHelper`、`ScreenshotCase` と、このページのほかの名前) は、ほかのプラグインでは定義しません。
+ほかのプラグインも同じ規則で、モジュール名はコードローダーがファイル名から付ける既定の名前です。`lib/redmine_kit/aws/ses.rb` の `RedmineKit::Aws::Ses`、`sqs.rb` の `RedmineKit::Aws::Sqs`、`RedmineKit::Aws::Ssm`、`costexplorer.rb` の `RedmineKit::Aws::Costexplorer`、`RedmineKit::Aws::Dsql` で、`lib/redmine_kit/aws/ses/receiver.rb` は `RedmineKit::Aws::Ses::Receiver` です。`RedmineKit` の中では `Aws` は `RedmineKit::Aws` なので、AWS SDK は必ず `::Aws::S3::Client` のように書きます。`app/` のクラスはトップレベルのままです (`AwsS3AdminController`)。このプラグインが `RedmineKit::Aws` の直下に定義する名前 (`VERSION`、`setup`、`client`、`Admin`、`AdminTab`、`Status`、`TestHelper`、`ScreenshotCase` と、このページのほかの名前) は、ほかのプラグインでは定義しません。
 
-[Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/ja/) は例外で、`lib/` を持ちません。Rails が起動する前に Parameter Store を読むためです。Bundler が読み込む `boot/redmine_kit_aws_ssm/loader.rb` が `RedmineKitAws::SSM` (`VERSION`、`Loader`、設定した変数の名前を持つ `RedmineKitAws::SSM.loaded`) を定義し、「ステータス」のタブは、このモジュールがあれば `RedmineKitAws::SSM.loaded` を読みます (`RedmineKitAws::Status#loaded_settings`)。
+[Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/ja/) は例外で、`lib/` を持ちません。Rails が起動する前に Parameter Store を読むためです。Bundler が読み込む `boot/redmine_kit_aws_ssm/loader.rb` が `RedmineKit::Aws::Ssm` (`VERSION`、`Loader`、設定した変数の名前を持つ `RedmineKit::Aws::Ssm.loaded`) を定義し、「ステータス」のタブは、このモジュールがあれば `RedmineKit::Aws::Ssm.loaded` を読みます (`RedmineKit::Aws::Status#loaded_settings`)。
 
-Bundler が Rails より前に読み込む `boot/` のファイルは、gem の名前のまま (`boot/redmine_kit_aws_lambda.rb`) にし、定数はプラグインのモジュールの中に定義します (`RedmineKitAws::Lambda::Boot`)。最初に `redmine_kit_aws/inflections` を読み込みます (このプラグインの gem は `boot/` をロードパスに含みます)。Rails より前に名前空間を定義すると、コードローダーは、どの `init.rb` よりも前のセットアップの時点で `lib/redmine_kit_aws/` の下のファイルの名前を決めるからです。定数の外側のモジュール (`module RedmineKitAws` と `module Lambda`) は空のまま書き、このプラグインが定義するものは定義しません。このときコードローダーは、モジュールがすでにあるので `lib/redmine_kit_aws.rb` とプラグインの `lib/redmine_kit_aws/<プラグイン>.rb` を読み込みません。各プラグインの `init.rb` がそのファイルを読み込みます。
+Bundler が Rails より前に読み込む `boot/` のファイルは、gem の名前のまま (`boot/redmine_kit_aws_lambda.rb`) にし、定数はプラグインのモジュールの中に定義します (`RedmineKit::Aws::Lambda::Boot`)。定数の外側のモジュールは、空のまま入れ子で書き (`module RedmineKit`、`module Aws`、`module Lambda`。`RedmineKit` が定義済みでないと使えない `module RedmineKit::Aws` は使いません)、このプラグインが定義するものは定義しません。このときコードローダーは、モジュールがすでにあるので `lib/redmine_kit/aws.rb` とプラグインの `lib/redmine_kit/aws/<プラグイン>.rb` を読み込みません。各プラグインの `init.rb` がそのファイルを読み込みます。
 
 ```ruby
 # redmine_kit_aws_lambda の init.rb。Redmine::Plugin.register の前
-require File.expand_path('lib/redmine_kit_aws/lambda', __dir__) unless defined?(RedmineKitAws::Lambda::VERSION)
+require File.expand_path('lib/redmine_kit/aws/lambda', __dir__) unless defined?(RedmineKit::Aws::Lambda::VERSION)
 ```
 
 すべてのファイルを読み込めることは `bin/rails zeitwerk:check` で確認します。このプラグインのテストは、上の名前のファイルを持つプラグインを使い、Rails より前に名前空間を定義した場合も含めて実行します。Redmine Kit AWS Lambda のテストは、boot のファイルを読み込んだ状態で実行します。
@@ -43,9 +43,9 @@ require File.expand_path('lib/redmine_kit_aws/lambda', __dir__) unless defined?(
 ## タブと接続テスト
 
 ```ruby
-RedmineKitAws::Admin.register_tab(:jobs, label: :label_aws_sqs_jobs,
+RedmineKit::Aws::Admin.register_tab(:jobs, label: :label_aws_sqs_jobs,
                                       url: { controller: 'aws_sqs_jobs', action: 'index' }, position: 20)
-RedmineKitAws::Admin.register_check(:sqs, label: :label_aws_sqs_check) { Queue.new.check }
+RedmineKit::Aws::Admin.register_check(:sqs, label: :label_aws_sqs_check) { Queue.new.check }
 ```
 
 | メソッド | 内容 |
@@ -63,11 +63,11 @@ RedmineKitAws::Admin.register_check(:sqs, label: :label_aws_sqs_check) { Queue.n
 
 ```ruby
 class AwsSqsJobsController < ApplicationController
-  include RedmineKitAws::AdminTab
+  include RedmineKit::Aws::AdminTab
 end
 ```
 
-`RedmineKitAws::AdminTab` は、Redmine の管理画面のレイアウトを使い、「AWS」のメニューの項目を選択状態にし、システム管理者だけに許可します (`require_admin`)。ビューはタブから始めます。`selected` は `register_tab` に渡した名前です。
+`RedmineKit::Aws::AdminTab` は、Redmine の管理画面のレイアウトを使い、「AWS」のメニューの項目を選択状態にし、システム管理者だけに許可します (`require_admin`)。ビューはタブから始めます。`selected` は `register_tab` に渡した名前です。
 
 ```erb
 <%= render partial: 'aws_admin/tabs', locals: { selected: 'jobs' } %>
@@ -78,10 +78,10 @@ end
 ## ステータスのタブ
 
 ```ruby
-RedmineKitAws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
+RedmineKit::Aws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
 ```
 
-`register_status_section(name, partial:, position:)` は、ステータスのタブに項目を追加します。ビューのパーシャルを、ローカル変数 `status` (`RedmineKitAws::Status`) を渡して、タブ自身の項目 (バージョンは 20、Parameter Store は 30) の間の位置に表示します。接続テストは最後です。`status_sections` は、項目を順序どおりに返します。タブは、ファミリーのプラグインのバージョンを表示します。`redmine_kit_aws` と、ID が `redmine_kit_aws_` で始まるプラグインです (`RedmineKitAws::Status.family?`)。
+`register_status_section(name, partial:, position:)` は、ステータスのタブに項目を追加します。ビューのパーシャルを、ローカル変数 `status` (`RedmineKit::Aws::Status`) を渡して、タブ自身の項目 (バージョンは 20、Parameter Store は 30) の間の位置に表示します。接続テストは最後です。`status_sections` は、項目を順序どおりに返します。タブは、ファミリーのプラグインのバージョンを表示します。`redmine_kit_aws` と、ID が `redmine_kit_aws_` で始まるプラグインです (`RedmineKit::Aws::Status.family?`)。
 
 <a id="values"></a>
 
@@ -102,8 +102,8 @@ RedmineKitAws::Admin.register_status_section(:lambda_function, partial: 'aws_lam
 ## AWS クライアント
 
 ```ruby
-RedmineKitAws.client(::Aws::S3::Client)
-RedmineKitAws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_timeout: 5, retry_limit: 2)
+RedmineKit::Aws.client(::Aws::S3::Client)
+RedmineKit::Aws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_timeout: 5, retry_limit: 2)
 ```
 
 | メソッド | 内容 |
@@ -129,27 +129,27 @@ RedmineKitAws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open
 
 ### テストヘルパー
 
-`test/support/redmine_kit_aws/` は、リポジトリにも gem にも入っています。プラグインの `test/test_helper.rb` は、Redmine のテストヘルパーのあとに、`redmine_kit_aws` をインストールした場所からこれを読み込みます。
+`test/support/redmine_kit/aws/` は、リポジトリにも gem にも入っています。プラグインの `test/test_helper.rb` は、Redmine のテストヘルパーのあとに、`redmine_kit_aws` をインストールした場所からこれを読み込みます。
 
 ```ruby
 require File.expand_path('../../../test/test_helper', __dir__)
-require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit_aws/test_helper')
+require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit/aws/test_helper')
 ```
 
-| `RedmineKitAws::TestHelper` | 内容 |
+| `RedmineKit::Aws::TestHelper` | 内容 |
 | --- | --- |
 | `with_env(values) { … }` | ブロックの間だけ環境変数を設定し (`nil` は削除)、元に戻す |
-| `with_aws_client_options(**options) { … }` | ブロックの間だけ、オプションを `RedmineKitAws.client_options` にマージする。たとえば AWS Emulator の `endpoint:` |
+| `with_aws_client_options(**options) { … }` | ブロックの間だけ、オプションを `RedmineKit::Aws.client_options` にマージする。たとえば AWS Emulator の `endpoint:` |
 | `stub_aws_client(klass, **stubs)` | SDK のレスポンスのスタブ (`stub_responses`) を持つクライアント。リージョンは `us-east-1`、認証情報はテスト用。スタブを渡さなければ、どの呼び出しも空のデータを返す |
 | `TEST_REGION`、`TestHelper.credentials` | テストで使うクライアントのリージョン (`us-east-1`) と認証情報 (`test`/`test`)。AWS Emulator (認証はオフ)、LocalStack、moto はこれを受け付ける |
 
-ドキュメントのスクリーンショットは、プラグインの `docs/` を指定して `RedmineKitAws::ScreenshotCase` (`test/support/redmine_kit_aws/screenshot_case.rb`) で撮影します。
+ドキュメントのスクリーンショットは、プラグインの `docs/` を指定して `RedmineKit::Aws::ScreenshotCase` (`test/support/redmine_kit/aws/screenshot_case.rb`) で撮影します。
 
 ```ruby
 require_relative '../test_helper'
-require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit_aws/screenshot_case')
+require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit/aws/screenshot_case')
 
-module RedmineKitAws
+module RedmineKit::Aws
   module SQS
     class ScreenshotsTest < ScreenshotCase
       self.docs = File.expand_path('../../docs', __dir__)

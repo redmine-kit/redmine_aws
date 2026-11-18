@@ -8,12 +8,12 @@ class AwsStatusControllerTest < Redmine::ControllerTest
   end
 
   # Runs the block as with Redmine Kit AWS SSM, whose boot file defines
-  # RedmineKitAws::SSM with the names of the parameters it read.
+  # RedmineKit::Aws::Ssm with the names of the parameters it read.
   def with_ssm(names)
-    RedmineKitAws.const_set(:SSM, Module.new { define_singleton_method(:loaded) { names } })
+    RedmineKit::Aws.const_set(:Ssm, Module.new { define_singleton_method(:loaded) { names } })
     yield
   ensure
-    RedmineKitAws.send(:remove_const, :SSM)
+    RedmineKit::Aws.send(:remove_const, :Ssm)
   end
 
   def test_index
@@ -55,14 +55,14 @@ class AwsStatusControllerTest < Redmine::ControllerTest
   end
 
   def test_registered_sections_are_shown_in_order
-    RedmineKitAws::Admin.register_status_section(:early, partial: 'aws_status/versions', position: 5)
+    RedmineKit::Aws::Admin.register_status_section(:early, partial: 'aws_status/versions', position: 5)
     get :index
 
     assert_response :success
     assert_select 'h3', text: 'Versions', count: 2
-    assert_equal %w[early versions loaded_settings], RedmineKitAws::Admin.status_sections.map(&:name)
+    assert_equal %w[early versions loaded_settings], RedmineKit::Aws::Admin.status_sections.map(&:name)
   ensure
-    RedmineKitAws::Admin.instance_variable_get(:@status_sections).delete('early')
+    RedmineKit::Aws::Admin.instance_variable_get(:@status_sections).delete('early')
   end
 
   def test_check_runs_the_connection_checks
@@ -83,7 +83,7 @@ class AwsStatusControllerTest < Redmine::ControllerTest
   # log: a service's message may name hosts, accounts or resources.
   def test_a_failing_check_shows_the_error_class_and_logs_the_message
     message = 'User: arn:aws:iam::111122223333:user/redmine is not authorized'
-    RedmineKitAws::Admin.register_check(:broken, label: :label_aws_failed) { raise IOError, message }
+    RedmineKit::Aws::Admin.register_check(:broken, label: :label_aws_failed) { raise IOError, message }
     log = capture_log { post :check }
 
     assert_response :success
@@ -92,7 +92,7 @@ class AwsStatusControllerTest < Redmine::ControllerTest
     assert_not_includes response.body, message
     assert_includes log, "[redmine_kit_aws] connection check broken failed: IOError: #{message}"
   ensure
-    RedmineKitAws::Admin.instance_variable_get(:@checks).delete('broken')
+    RedmineKit::Aws::Admin.instance_variable_get(:@checks).delete('broken')
   end
 
   def test_no_secret_values_on_the_page

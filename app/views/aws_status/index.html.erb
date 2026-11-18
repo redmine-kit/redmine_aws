@@ -1,6 +1,6 @@
 <%= render partial: 'aws_admin/tabs', locals: { selected: 'status' } %>
 
-<% RedmineKitAws::Admin.status_sections.each do |section| %>
+<% RedmineKit::Aws::Admin.status_sections.each do |section| %>
 <%= render partial: section.partial, locals: { status: @status } %>
 <% end %>
 

@@ -32,7 +32,7 @@ All the Redmine Kit AWS plugins put their administration pages under one item, "
 
 | Item | Details |
 | --- | --- |
-| One item | This plugin holds the menu: the registry `RedmineKitAws::Admin`, the controller `AwsAdminController` and the view `aws_admin/_tabs`. Each plugin registers its tab and its connection check there from `init.rb` (`register_tab`, `register_check`; [api.md](api.md)); the first registration adds the menu item. The item opens `/admin/aws`, which goes to the first tab |
+| One item | This plugin holds the menu: the registry `RedmineKit::Aws::Admin`, the controller `AwsAdminController` and the view `aws_admin/_tabs`. Each plugin registers its tab and its connection check there from `init.rb` (`register_tab`, `register_check`; [api.md](api.md)); the first registration adds the menu item. The item opens `/admin/aws`, which goes to the first tab |
 | Order of the tabs | Status, Jobs, Email sending, Email receiving, S3, Cost Explorer. A tab appears only when its plugin is installed |
 | From the plugin list | The plugins have no settings page of Redmine's plugin settings, so the plugin list shows no "Configure" link. Their settings are on their tabs |
 | Project settings | The "Email" tab in project settings that Redmine Kit AWS SES adds is not part of this menu |
@@ -44,7 +44,7 @@ All the Redmine Kit AWS plugins put their administration pages under one item, "
 | Item | Contents | Source |
 | --- | --- | --- |
 | Versions | Redmine, Ruby, Rails, the installed Redmine Kit AWS plugins | The same as Redmine's information page |
-| Parameter Store | The names of the variables set from Parameter Store (values are not shown); a variable that was already set keeps its value and is not listed. Shown when [Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/) is installed | The result of reading them at start-up (`RedmineKitAws::SSM.loaded`) |
+| Parameter Store | The names of the variables set from Parameter Store (values are not shown); a variable that was already set keeps its value and is not listed. Shown when [Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/) is installed | The result of reading them at start-up (`RedmineKit::Aws::Ssm.loaded`) |
 | Values of the other plugins | Sections that the other plugins add (`register_status_section`; [api.md](api.md#the-status-tab)). Redmine Kit AWS Lambda adds the Lambda function before the versions and the read-only settings after them ([its admin.md](https://redmine-kit.github.io/redmine_aws_lambda/admin.html)) | The plugin that adds them |
 | Connection test | Whether the database and the AWS services of the installed plugins are reachable, and the response time in milliseconds | When "Test" is clicked, one light call to each (table below) |
 

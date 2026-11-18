@@ -28,7 +28,7 @@ Every Redmine Kit AWS plugin (`redmine_kit_aws_*`) requires Redmine Kit AWS, wit
 
 ## Code layout
 
-The registry of the tabs and connection checks is `RedmineKitAws::Admin` (`lib/redmine_kit_aws/admin.rb`), the page behind the menu item `AwsAdminController`, the Status tab `AwsStatusController` with `RedmineKitAws::Status`, and the settings of the AWS clients `RedmineKitAws` (`lib/redmine_kit_aws.rb`). Redmine loads `lib/` and `app/`, and `init.rb` registers the Status tab and the database check. `boot/redmine_kit_aws/inflections.rb` gives Rails' code loaders the module names of the plugins' files ([api.md](api.md#namespace-and-files)). `test/support/redmine_kit_aws/` holds the test helpers that the other plugins' tests load. The other Redmine Kit AWS plugins put their code in the same namespace (`RedmineKitAws::Lambda`, `RedmineKitAws::S3`, …; [api.md](api.md#namespace-and-files)).
+The registry of the tabs and connection checks is `RedmineKit::Aws::Admin` (`lib/redmine_kit/aws/admin.rb`), the page behind the menu item `AwsAdminController`, the Status tab `AwsStatusController` with `RedmineKit::Aws::Status`, and the settings of the AWS clients `RedmineKit::Aws` (`lib/redmine_kit/aws.rb`). Redmine loads `lib/` and `app/`, and `init.rb` registers the Status tab and the database check. `test/support/redmine_kit/aws/` holds the test helpers that the other plugins' tests load. The other Redmine Kit AWS plugins put their code in the same namespace (`RedmineKit::Aws::Lambda`, `RedmineKit::Aws::S3`, …; [api.md](api.md#namespace-and-files)).
 
 The plugin calls no AWS API itself, so it needs no AWS SDK gem; each plugin that calls AWS has its own. It adds no database tables, so there are no migrations to run. The code has tests written with Redmine's standard mechanism ([setup.md](setup.md#tests)).
 
@@ -39,7 +39,7 @@ The plugin calls no AWS API itself, so it needs no AWS SDK gem; each plugin that
 | The AWS menu | One menu item, also when more tabs are registered; it opens the first tab; only administrators |
 | Status | The versions; the names of the variables that Redmine Kit AWS SSM set; the sections that plugins add, in order; no secrets on the page; the database check and a failing check; only administrators |
 | AWS clients | The region from `AWS_REGION` and `AWS_DEFAULT_REGION`; the order of the options; the test helpers set and restore the options and the environment |
-| Code loading | In new processes, with a plugin whose files are named as the plugins name theirs (`ses.rb` for `RedmineKitAws::SES`, …): `zeitwerk:check` passes and the modules load, also with the `RedmineKitAws` namespace defined before Rails as a boot file of another plugin does |
+| Code loading | In new processes, with a plugin whose files are named as the plugins name theirs (`ses.rb` for `RedmineKit::Aws::Ses`, …): `zeitwerk:check` passes and the modules load, also with the `RedmineKit::Aws` namespace defined before Rails as a boot file of another plugin does |
 
 ## Sponsors
 

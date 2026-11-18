@@ -16,22 +16,22 @@ Redmine loads plugins in alphabetical order, so `redmine_kit_aws` has run its `i
 
 ## Namespace and files
 
-Every Redmine Kit AWS plugin puts its code under the `RedmineKitAws` namespace, which this plugin defines in `lib/redmine_kit_aws.rb`. Redmine's code loader (Zeitwerk) loads the namespace from the `lib/` of every installed plugin.
+Every Redmine Kit AWS plugin puts its code under the `RedmineKit::Aws` namespace, which this plugin defines in `lib/redmine_kit/aws.rb`. `RedmineKit` above it is the namespace of every Redmine Kit plugin and belongs to none: no plugin has `lib/redmine_kit.rb`, and Redmine's code loader (Zeitwerk) makes the module from the plugins' `lib/redmine_kit/` directories, since Redmine makes each plugin's `lib/` a root directory of the loader. A test of each plugin fails if it has `lib/redmine_kit.rb`.
 
 | Plugin | Module | Files |
 | --- | --- | --- |
-| `redmine_kit_aws_lambda` | `RedmineKitAws::Lambda` | `lib/redmine_kit_aws/lambda.rb` (the module, with `VERSION` and `setup`), `lib/redmine_kit_aws/lambda/*.rb` |
-| `redmine_kit_aws_s3` | `RedmineKitAws::S3` | `lib/redmine_kit_aws/s3.rb`, `lib/redmine_kit_aws/s3/*.rb` |
+| `redmine_kit_aws_lambda` | `RedmineKit::Aws::Lambda` | `lib/redmine_kit/aws/lambda.rb` (the module, with `VERSION` and `setup`), `lib/redmine_kit/aws/lambda/*.rb` |
+| `redmine_kit_aws_s3` | `RedmineKit::Aws::S3` | `lib/redmine_kit/aws/s3.rb`, `lib/redmine_kit/aws/s3/*.rb` |
 
-The other plugins follow the same rule, with the module names of the AWS SDK for Ruby and the file names in lower case: `RedmineKitAws::SES` in `lib/redmine_kit_aws/ses.rb`, `RedmineKitAws::SQS` in `sqs.rb`, `RedmineKitAws::CostExplorer` in `costexplorer.rb`. This plugin gives Rails' code loaders these names (`boot/redmine_kit_aws/inflections.rb`); the files in a plugin's directory are named as usual (`lib/redmine_kit_aws/ses/receiver.rb` defines `RedmineKitAws::SES::Receiver`). Inside the namespace, the AWS SDK is written `::Aws::S3::Client`, so that `RedmineKitAws::S3` is never taken for `Aws::S3`. The classes in `app/` stay at the top level (`AwsS3AdminController`). The names directly in `RedmineKitAws` that this plugin defines (`VERSION`, `setup`, `client`, `Admin`, `AdminTab`, `Status`, `TestHelper`, `ScreenshotCase` and the others on this page) are not defined by other plugins.
+The other plugins follow the same rule, with the names the code loader gives the files by default: `RedmineKit::Aws::Ses` in `lib/redmine_kit/aws/ses.rb`, `RedmineKit::Aws::Sqs` in `sqs.rb`, `RedmineKit::Aws::Ssm`, `RedmineKit::Aws::Costexplorer` in `costexplorer.rb`, `RedmineKit::Aws::Dsql`, and `lib/redmine_kit/aws/ses/receiver.rb` defines `RedmineKit::Aws::Ses::Receiver`. Inside `RedmineKit`, `Aws` is `RedmineKit::Aws`, so the AWS SDK is always written `::Aws::S3::Client`. The classes in `app/` stay at the top level (`AwsS3AdminController`). The names directly in `RedmineKit::Aws` that this plugin defines (`VERSION`, `setup`, `client`, `Admin`, `AdminTab`, `Status`, `TestHelper`, `ScreenshotCase` and the others on this page) are not defined by other plugins.
 
-[Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/) is the exception: it has no `lib/`, because it reads Parameter Store before Rails starts. Its `boot/redmine_kit_aws_ssm/loader.rb`, which Bundler loads, defines `RedmineKitAws::SSM` (`VERSION`, the `Loader`, and `RedmineKitAws::SSM.loaded`, the names of the variables it set), and the Status tab reads `RedmineKitAws::SSM.loaded` when the module is there (`RedmineKitAws::Status#loaded_settings`).
+[Redmine Kit AWS SSM](https://redmine-kit.github.io/redmine_aws_ssm/) is the exception: it has no `lib/`, because it reads Parameter Store before Rails starts. Its `boot/redmine_kit_aws_ssm/loader.rb`, which Bundler loads, defines `RedmineKit::Aws::Ssm` (`VERSION`, the `Loader`, and `RedmineKit::Aws::Ssm.loaded`, the names of the variables it set), and the Status tab reads `RedmineKit::Aws::Ssm.loaded` when the module is there (`RedmineKit::Aws::Status#loaded_settings`).
 
-A `boot/` file, which Bundler loads before Rails, keeps the name of its gem (`boot/redmine_kit_aws_lambda.rb`) and defines its constants in the plugin's module (`RedmineKitAws::Lambda::Boot`). It first requires `redmine_kit_aws/inflections` (the gem of this plugin has `boot/` on the load path): with the namespace defined before Rails, the code loader names the files under `lib/redmine_kit_aws/` while it sets up, before any `init.rb` runs. It writes the modules around its constants empty (`module RedmineKitAws` and `module Lambda`) and defines nothing that this plugin defines. The code loader then skips `lib/redmine_kit_aws.rb` and the plugin's `lib/redmine_kit_aws/<plugin>.rb`, because their modules exist already; `init.rb` of each plugin loads its file:
+A `boot/` file, which Bundler loads before Rails, keeps the name of its gem (`boot/redmine_kit_aws_lambda.rb`) and defines its constants in the plugin's module (`RedmineKit::Aws::Lambda::Boot`). It writes the modules around its constants empty and nested (`module RedmineKit`, `module Aws` and `module Lambda`; not `module RedmineKit::Aws`, which needs `RedmineKit` defined) and defines nothing that this plugin defines. The code loader then skips `lib/redmine_kit/aws.rb` and the plugin's `lib/redmine_kit/aws/<plugin>.rb`, because their modules exist already; `init.rb` of each plugin loads its file:
 
 ```ruby
 # init.rb of redmine_kit_aws_lambda, before Redmine::Plugin.register
-require File.expand_path('lib/redmine_kit_aws/lambda', __dir__) unless defined?(RedmineKitAws::Lambda::VERSION)
+require File.expand_path('lib/redmine_kit/aws/lambda', __dir__) unless defined?(RedmineKit::Aws::Lambda::VERSION)
 ```
 
 `bin/rails zeitwerk:check` checks that every file loads. The tests of this plugin run it with a plugin whose files are named as above, also with the namespace defined before Rails; the tests of Redmine Kit AWS Lambda run it with its boot file.
@@ -39,9 +39,9 @@ require File.expand_path('lib/redmine_kit_aws/lambda', __dir__) unless defined?(
 ## Tabs and connection checks
 
 ```ruby
-RedmineKitAws::Admin.register_tab(:jobs, label: :label_aws_sqs_jobs,
+RedmineKit::Aws::Admin.register_tab(:jobs, label: :label_aws_sqs_jobs,
                                       url: { controller: 'aws_sqs_jobs', action: 'index' }, position: 20)
-RedmineKitAws::Admin.register_check(:sqs, label: :label_aws_sqs_check) { Queue.new.check }
+RedmineKit::Aws::Admin.register_check(:sqs, label: :label_aws_sqs_check) { Queue.new.check }
 ```
 
 | Method | Details |
@@ -57,11 +57,11 @@ Call them from the plugin's setup in `init.rb`, which Redmine runs again on ever
 
 ```ruby
 class AwsSqsJobsController < ApplicationController
-  include RedmineKitAws::AdminTab
+  include RedmineKit::Aws::AdminTab
 end
 ```
 
-`RedmineKitAws::AdminTab` sets Redmine's administration layout, selects the "AWS" menu item and allows administrators only (`require_admin`). The view starts with the tabs, `selected` being the name given to `register_tab`:
+`RedmineKit::Aws::AdminTab` sets Redmine's administration layout, selects the "AWS" menu item and allows administrators only (`require_admin`). The view starts with the tabs, `selected` being the name given to `register_tab`:
 
 ```erb
 <%= render partial: 'aws_admin/tabs', locals: { selected: 'jobs' } %>
@@ -70,10 +70,10 @@ end
 ## The Status tab
 
 ```ruby
-RedmineKitAws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
+RedmineKit::Aws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
 ```
 
-`register_status_section(name, partial:, position:)` adds a section to the Status tab: a view partial, rendered with the local `status` (a `RedmineKitAws::Status`), at a position among the tab's own sections (Versions 20, Parameter Store 30). The connection test comes last. `status_sections` returns the sections in order. The tab lists the versions of the family's plugins: `redmine_kit_aws` and the plugins whose ids start with `redmine_kit_aws_` (`RedmineKitAws::Status.family?`).
+`register_status_section(name, partial:, position:)` adds a section to the Status tab: a view partial, rendered with the local `status` (a `RedmineKit::Aws::Status`), at a position among the tab's own sections (Versions 20, Parameter Store 30). The connection test comes last. `status_sections` returns the sections in order. The tab lists the versions of the family's plugins: `redmine_kit_aws` and the plugins whose ids start with `redmine_kit_aws_` (`RedmineKit::Aws::Status.family?`).
 
 ## Values
 
@@ -90,8 +90,8 @@ RedmineKitAws::Admin.register_status_section(:lambda_function, partial: 'aws_lam
 ## AWS clients
 
 ```ruby
-RedmineKitAws.client(::Aws::S3::Client)
-RedmineKitAws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_timeout: 5, retry_limit: 2)
+RedmineKit::Aws.client(::Aws::S3::Client)
+RedmineKit::Aws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_open_timeout: 5, retry_limit: 2)
 ```
 
 | Method | Details |
@@ -111,27 +111,27 @@ The plugins depend on `redmine_kit_aws ~> 0.1` (0.1 or later, below 1.0). While 
 
 ### Test helpers
 
-`test/support/redmine_kit_aws/` is in the repository and in the gem. A plugin's `test/test_helper.rb` loads it after Redmine's test helper, from wherever `redmine_kit_aws` is installed:
+`test/support/redmine_kit/aws/` is in the repository and in the gem. A plugin's `test/test_helper.rb` loads it after Redmine's test helper, from wherever `redmine_kit_aws` is installed:
 
 ```ruby
 require File.expand_path('../../../test/test_helper', __dir__)
-require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit_aws/test_helper')
+require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit/aws/test_helper')
 ```
 
-| `RedmineKitAws::TestHelper` | Details |
+| `RedmineKit::Aws::TestHelper` | Details |
 | --- | --- |
 | `with_env(values) { … }` | Sets environment variables for the block (`nil` unsets one) and restores them |
-| `with_aws_client_options(**options) { … }` | Merges options into `RedmineKitAws.client_options` for the block, for example the `endpoint:` of AWS Emulator |
+| `with_aws_client_options(**options) { … }` | Merges options into `RedmineKit::Aws.client_options` for the block, for example the `endpoint:` of AWS Emulator |
 | `stub_aws_client(klass, **stubs)` | A client with SDK response stubs (`stub_responses`), in `us-east-1` with test credentials; without stubs, every call returns empty data |
 | `TEST_REGION`, `TestHelper.credentials` | The region (`us-east-1`) and the credentials (`test`/`test`) of clients in tests, which AWS Emulator (with its authentication off), LocalStack and moto accept |
 
-The screenshots of the docs use `RedmineKitAws::ScreenshotCase` (`test/support/redmine_kit_aws/screenshot_case.rb`), with the plugin's `docs/`:
+The screenshots of the docs use `RedmineKit::Aws::ScreenshotCase` (`test/support/redmine_kit/aws/screenshot_case.rb`), with the plugin's `docs/`:
 
 ```ruby
 require_relative '../test_helper'
-require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit_aws/screenshot_case')
+require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/support/redmine_kit/aws/screenshot_case')
 
-module RedmineKitAws
+module RedmineKit::Aws
   module SQS
     class ScreenshotsTest < ScreenshotCase
       self.docs = File.expand_path('../../docs', __dir__)
