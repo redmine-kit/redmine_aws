@@ -144,14 +144,11 @@ It has `each_language`, `shoot(name, language, selector:)` and `hide_after(selec
 
 ### Redmine Kit AWS in the test image
 
-Until the plugins' tests install the gem, they take Redmine Kit AWS from a checkout: `../redmine_kit_aws` next to the plugin, or the directory in `REDMINE_KIT_AWS_DIR`, given to Docker as a build context of its own:
-
-```sh
-docker buildx build --build-context redmine_kit_aws="${REDMINE_KIT_AWS_DIR:-../redmine_kit_aws}" -f test/Dockerfile .
-```
+Until the plugins' tests install the gem, they take Redmine Kit AWS from a checkout: `../redmine_kit_aws` next to the plugin, or the directory in `REDMINE_KIT_AWS_DIR`. `bin/test` copies the files that git tracks or would track, of the plugin's checkout and of Redmine Kit AWS's, into one build context, as `plugin/` and `redmine_kit_aws/`, so that Apple container, which has no named build contexts, and Docker build the same `test/Dockerfile`:
 
 ```dockerfile
-COPY --from=redmine_kit_aws . plugins/redmine_kit_aws/
+COPY redmine_kit_aws plugins/redmine_kit_aws/
+COPY plugin plugins/redmine_kit_aws_lambda/
 ```
 
 When the test image adds the plugin to `Gemfile.local` as a gem by path, Bundler needs `redmine_kit_aws` by path too (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`). CI checks out `redmine-kit/redmine_aws` into `redmine_kit_aws/` and sets `REDMINE_KIT_AWS_DIR`. [Redmine Kit AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda) does all of this.

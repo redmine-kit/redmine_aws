@@ -164,14 +164,11 @@ end
 
 ### テスト用のイメージの Redmine Kit AWS
 
-プラグインのテストが gem をインストールするようになるまでは、Redmine Kit AWS をチェックアウトから使います。プラグインの隣の `../redmine_kit_aws`、または `REDMINE_KIT_AWS_DIR` のディレクトリを、Docker の独立したビルドコンテキストとして渡します。
-
-```sh
-docker buildx build --build-context redmine_kit_aws="${REDMINE_KIT_AWS_DIR:-../redmine_kit_aws}" -f test/Dockerfile .
-```
+プラグインのテストが gem をインストールするようになるまでは、Redmine Kit AWS をチェックアウトから使います。プラグインの隣の `../redmine_kit_aws`、または `REDMINE_KIT_AWS_DIR` のディレクトリです。`bin/test` は、プラグインのチェックアウトと Redmine Kit AWS のチェックアウトから、git が管理する (または管理の対象になる) ファイルを 1 つのビルドコンテキストの `plugin/` と `redmine_kit_aws/` にコピーします。名前付きのビルドコンテキストがない Apple container と Docker で、同じ `test/Dockerfile` をビルドするためです。
 
 ```dockerfile
-COPY --from=redmine_kit_aws . plugins/redmine_kit_aws/
+COPY redmine_kit_aws plugins/redmine_kit_aws/
+COPY plugin plugins/redmine_kit_aws_lambda/
 ```
 
 テスト用のイメージがプラグインをパスで gem として `Gemfile.local` に追加するときは、Bundler は `redmine_kit_aws` もパスで必要とします (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`)。CI は `redmine-kit/redmine_aws` を `redmine_kit_aws/` にチェックアウトし、`REDMINE_KIT_AWS_DIR` を設定します。[Redmine Kit AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda) がこれをすべて行っています。

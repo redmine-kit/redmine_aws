@@ -11,7 +11,7 @@ Redmine Kit AWS (`redmine_kit_aws`) is the Redmine plugin that the Redmine Kit A
 - **Redmine's extension points only:** do not edit Redmine's own files. Keep Redmine's standard behaviour wherever possible.
 - **Any server:** the plugin works on any server, not only on Lambda, and calls no AWS API itself. What only Lambda needs goes in redmine_kit_aws_lambda; what one AWS service needs goes in that service's plugin.
 - **One API for the other plugins:** what they use is in [docs/api.md](docs/api.md) (`RedmineKitAws::Admin`, `RedmineKitAws::AdminTab`, the `aws_admin/tabs` view, `RedmineKitAws.client`, `test/support/`). Keep it compatible within a minor version, and when it changes, change the plugins that use it and their required version together.
-- **Tests:** the code has tests, run with Redmine's own mechanism (`bin/test` runs them in Docker; [setup.md](docs/setup.md#tests)). The test plan is in Serverless ([testing.md](https://github.com/redmine-kit/serverless/blob/main/docs/testing.md#plugin-tests)).
+- **Tests:** the code has tests, run with Redmine's own mechanism (`bin/test` runs them in a container (Apple container, else Docker); [setup.md](docs/setup.md#tests)). The test plan is in Serverless ([testing.md](https://github.com/redmine-kit/serverless/blob/main/docs/testing.md#plugin-tests)).
 - **Code layout:** `lib/` and `app/` (Redmine autoloads them; `init.rb` calls `RedmineKitAws.setup`); `boot/redmine_kit_aws/inflections.rb` holds the module names of the plugins' files (`ses.rb` → `RedmineKitAws::SES`), loaded by `init.rb`, `lib/redmine_kit_aws.rb` and the other plugins' boot files; `test/support/` holds what the other plugins' tests load. The other plugins' code is in the same namespace ([docs/api.md](docs/api.md#namespace-and-files)).
 - **No secrets in the repository.**
 
@@ -28,3 +28,9 @@ Redmine Kit AWS (`redmine_kit_aws`) is the Redmine plugin that the Redmine Kit A
 - English, imperative mood, 72 characters or fewer in the first line, no trailing period.
 - One purpose per commit.
 - Do not rewrite pushed history.
+
+## Development environment
+
+- **Apple container first, Docker too** (a public repository). Scripts (`bin/test`, databases, emulators) use Apple container (`container`) when it is installed and running, else Docker (other machines, CI); `CONTAINER_CLI=docker|container` chooses. Docs give both, Apple container first. Images are built from the `Dockerfile` with either tool.
+- **Libraries at their latest versions.** Dependencies are kept at their latest stable releases, pinned exactly in the lockfiles; a version held back has its reason next to the pin.
+- Both are the organization's rules (`../AGENTS.md`, "Development environment").

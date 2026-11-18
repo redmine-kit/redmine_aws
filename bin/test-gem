@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# The plugin as a gem, in Docker: builds the gem from this checkout, installs
-# it into Redmine 7.0.3 as docs/setup.md#gem says (installed, then
+# The plugin as a gem, in Apple container when it runs, else in Docker
+# (CONTAINER_CLI=container|docker chooses): builds the gem from this checkout,
+# installs it into Redmine 7.0.3 as docs/setup.md#gem says (installed, then
 # plugins/redmine_kit_aws linked to the installed gem), and
 # boots Redmine through zeitwerk:check and in the production environment,
 # which loads every file at start-up (eager_load). It fails when the gem
@@ -11,23 +12,35 @@
 # shellcheck disable=SC2016
 set -euo pipefail
 cd "$(dirname "$0")/.."
-image=redmine-kit-aws-test
+source bin/container_cli
+source bin/test_slot
+ruby_version=${TEST_RUBY:-4.0}
+image=redmine-kit-aws-test:ruby-$ruby_version
 bin/services >/dev/null
 # test/Dockerfile on the Ruby of TEST_RUBY, as bin/test builds it.
-ruby=$(sed -n 's/^FROM //p' "test/ruby-${TEST_RUBY:-4.0}.Dockerfile")
-sed "s|^FROM ruby:[^ ]*|FROM $ruby|" test/Dockerfile | docker buildx build --load -q -t "$image" -f - . >/dev/null
+ruby=$(sed -n 's/^FROM //p' "test/ruby-$ruby_version.Dockerfile")
+dockerfile=$(mktemp)
+trap 'release_test_slot; rm -f "$dockerfile"' EXIT
+sed "s|^FROM ruby:[^ ]*|FROM $ruby|" test/Dockerfile >"$dockerfile"
+build_image "$image" "$dockerfile" .
+if [[ "$cli" == docker ]]; then
+  net=(--network redmine-kit-aws-test_default)
+else
+  net=(--network redmine-kit-aws-test -m 4G
+    -e TEST_DATABASE_HOST="$(container_address redmine-kit-aws-test-postgres)")
+fi
 # Two ways the gem comes into Redmine: as docs/setup.md#gem says, installed
 # but not required by Bundler (a dependency of another plugin's gem, or
 # require: false), so that Rails' code loader loads lib/redmine_kit_aws.rb through
 # plugins/; and required early by Bundler (gem 'redmine_kit_aws'), as a plugin's
-# boot/ file may do.
-docker run --rm --network redmine-kit-aws-test_default "$image" sh -ec '
+# boot/ file may do. A database of this run's own, dropped at the end.
+"$cli" run --rm "${net[@]}" -e TEST_DATABASE="redmine_test_$$" "$image" sh -ec '
   (cd plugins/redmine_kit_aws && gem build --quiet redmine_kit_aws.gemspec --output /tmp/redmine_kit_aws.gem)
   rm -rf plugins/redmine_kit_aws
   gem install --local --no-document --quiet /tmp/redmine_kit_aws.gem
   # The production environment, which loads every file at start-up
   # (eager_load), on the test database.
-  printf "%s\n" "production:" "  adapter: postgresql" "  host: postgres" "  database: redmine_test" \
+  printf "%s\n" "production:" "  adapter: postgresql" "  host: ${TEST_DATABASE_HOST:-postgres}" "  database: $TEST_DATABASE" \
     "  username: postgres" >> config/database.yml
   for line in "gem '\''redmine_kit_aws'\'', require: false" "gem '\''redmine_kit_aws'\''"; do
     echo "== Gemfile.local: $line"
@@ -42,4 +55,5 @@ docker run --rm --network redmine-kit-aws-test_default "$image" sh -ec '
       abort %(redmine_kit_aws is not the installed gem: #{dir}) unless dir.start_with?(Gem.dir)
       abort %(not eager loaded) unless Rails.application.config.eager_load
       puts %(redmine_kit_aws #{plugin.version} from #{dir}: #{RedmineKitAws::Admin.tabs.map(&:name).join(%(, ))})"
-  done'
+  done
+  bin/rails db:drop >/dev/null'
