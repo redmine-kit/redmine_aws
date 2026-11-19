@@ -29,7 +29,7 @@ if [[ "$cli" == docker ]]; then
 else
   # PostgreSQL by its address, and more memory than the 1 GB a container
   # gets by default.
-  network=redmine-kit-aws-test
+  network=$kit_test_network
   opts=(-m 4G -e PARALLEL_WORKERS="${PARALLEL_WORKERS:-2}"
     -e TEST_DATABASE_HOST="$(container_address redmine-kit-aws-test-postgres)")
 fi

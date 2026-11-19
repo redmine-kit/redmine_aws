@@ -29,7 +29,7 @@ if [[ "$cli" == docker ]]; then
   chrome=http://chrome:4444
   app_host=redmine-screenshots
 else
-  opts=(--network redmine-kit-aws-test -m 4G
+  opts=(--network "$kit_test_network" -m 4G
     -e TEST_DATABASE_HOST="$(container_address redmine-kit-aws-test-postgres)")
   chrome="http://$(container_address redmine-kit-aws-test-chrome):4444"
   app_host=
