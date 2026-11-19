@@ -26,7 +26,7 @@ build_image "$image" "$dockerfile" .
 if [[ "$cli" == docker ]]; then
   net=(--network redmine-kit-aws-test_default)
 else
-  net=(--network redmine-kit-aws-test -m 4G
+  net=(--network "$kit_test_network" -m 4G
     -e TEST_DATABASE_HOST="$(container_address redmine-kit-aws-test-postgres)")
 fi
 # Two ways the gem comes into Redmine: as docs/setup.md#gem says, installed
