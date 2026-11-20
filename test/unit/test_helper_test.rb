@@ -30,6 +30,26 @@ module RedmineKit
       ensure
         RedmineKit::Aws.client_options = nil
       end
+
+      # Redmine's test helper loads Mocha, whose Object#stubs shadowed the
+      # SDK's option of the same name (SdkConfigStubs): the client failed to
+      # build with stubs and failed on every call.
+      def test_stub_aws_client_answers_with_the_stubs_under_mocha
+        assert_respond_to Object.new, :stubs, 'Mocha is loaded'
+
+        client = stub_aws_client(::Aws::STS::Client, get_caller_identity: { account: '123456789012' })
+
+        assert_equal '123456789012', client.get_caller_identity.account
+        assert_equal [:get_caller_identity], client.api_requests.pluck(:operation_name)
+      end
+
+      # The SDK's stub data: placeholder values of the response's shape.
+      def test_stub_aws_client_without_stubs_answers_with_the_sdks_stub_data
+        client = stub_aws_client(::Aws::STS::Client)
+
+        assert_kind_of String, client.get_caller_identity.account
+        assert_equal TEST_REGION, client.config.region
+      end
     end
   end
 end

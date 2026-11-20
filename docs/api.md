@@ -122,8 +122,10 @@ require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/suppor
 | --- | --- |
 | `with_env(values) { … }` | Sets environment variables for the block (`nil` unsets one) and restores them |
 | `with_aws_client_options(**options) { … }` | Merges options into `RedmineKit::Aws.client_options` for the block, for example the `endpoint:` of AWS Emulator |
-| `stub_aws_client(klass, **stubs)` | A client with SDK response stubs (`stub_responses`), in `us-east-1` with test credentials; without stubs, every call returns empty data |
+| `stub_aws_client(klass, **stubs)` | A client with SDK response stubs (`stub_responses`), in `us-east-1` with test credentials; without stubs, every call returns the SDK's stub data (placeholder values of the response's shape) |
 | `TEST_REGION`, `TestHelper.credentials` | The region (`us-east-1`) and the credentials (`test`/`test`) of clients in tests, which AWS Emulator (with its authentication off), LocalStack and moto accept |
+
+It also makes SDK clients with response stubs work under Mocha, which Redmine's test helper loads (`RedmineKit::Aws::SdkConfigStubs`). Since aws-sdk-core 3.270.0, Mocha's `Object#stubs` hides the client's `stubs` option, and a client built with stubs, or a call on it, raises `ArgumentError` ([aws/aws-sdk-ruby#3501](https://github.com/aws/aws-sdk-ruby/issues/3501), open on 2026-11-19). It goes when an SDK release fixes that issue.
 
 The screenshots of the docs use `RedmineKit::Aws::ScreenshotCase` (`test/support/redmine_kit/aws/screenshot_case.rb`), with the plugin's `docs/`:
 

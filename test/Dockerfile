@@ -16,8 +16,9 @@ COPY test/database.yml config/database.yml
 COPY . plugins/redmine_kit_aws/
 # simplecov-cobertura writes the coverage that Codecov reads (bin/test with
 # COVERAGE). Held at 3.2.0: 4.0 needs simplecov 1.x, and Redmine 7.0.3's
-# Gemfile pins simplecov ~> 0.22.0.
-RUN printf "gem 'simplecov-cobertura', '3.2.0', group: :test\n" > Gemfile.local \
+# Gemfile pins simplecov ~> 0.22.0. aws-sdk-core for the tests of
+# test/support/, which the AWS plugins' tests load with their SDK gems.
+RUN printf "gem 'simplecov-cobertura', '3.2.0', group: :test\ngem 'aws-sdk-core', group: :test\n" > Gemfile.local \
   && bundle config set --local without development \
   && bundle install --jobs 4
 ENV RAILS_ENV=test

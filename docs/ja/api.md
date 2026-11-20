@@ -140,8 +140,10 @@ require File.join(Redmine::Plugin.find(:redmine_kit_aws).directory, 'test/suppor
 | --- | --- |
 | `with_env(values) { … }` | ブロックの間だけ環境変数を設定し (`nil` は削除)、元に戻す |
 | `with_aws_client_options(**options) { … }` | ブロックの間だけ、オプションを `RedmineKit::Aws.client_options` にマージする。たとえば AWS Emulator の `endpoint:` |
-| `stub_aws_client(klass, **stubs)` | SDK のレスポンスのスタブ (`stub_responses`) を持つクライアント。リージョンは `us-east-1`、認証情報はテスト用。スタブを渡さなければ、どの呼び出しも空のデータを返す |
+| `stub_aws_client(klass, **stubs)` | SDK のレスポンスのスタブ (`stub_responses`) を持つクライアント。リージョンは `us-east-1`、認証情報はテスト用。スタブを渡さなければ、どの呼び出しも SDK のスタブデータ (レスポンスの形に沿った仮の値) を返す |
 | `TEST_REGION`、`TestHelper.credentials` | テストで使うクライアントのリージョン (`us-east-1`) と認証情報 (`test`/`test`)。AWS Emulator (認証はオフ)、LocalStack、moto はこれを受け付ける |
+
+Redmine のテストヘルパーが読み込む Mocha の下でも、レスポンスのスタブを持つ SDK のクライアントが動くようにします (`RedmineKit::Aws::SdkConfigStubs`)。aws-sdk-core 3.270.0 以降、Mocha の `Object#stubs` がクライアントのオプション `stubs` を隠し、スタブを渡したクライアントの作成やその呼び出しで `ArgumentError` が発生します ([aws/aws-sdk-ruby#3501](https://github.com/aws/aws-sdk-ruby/issues/3501)、2026-11-19 時点で未解決)。SDK のリリースでこの Issue が修正されたら削除します。
 
 ドキュメントのスクリーンショットは、プラグインの `docs/` を指定して `RedmineKit::Aws::ScreenshotCase` (`test/support/redmine_kit/aws/screenshot_case.rb`) で撮影します。
 

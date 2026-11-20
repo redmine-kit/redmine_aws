@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'sdk_config_stubs'
+
 module RedmineKit
   module Aws
     # Helpers for the tests of the Redmine Kit AWS plugins. A plugin's
@@ -38,7 +40,8 @@ module RedmineKit
       end
 
       # A client of the SDK class with response stubs (stub_responses), as in
-      # the SDK's documentation: no stubs answers every call with empty data.
+      # the SDK's documentation: no stubs answers every call with the SDK's
+      # stub data (placeholder values of the response's shape).
       def stub_aws_client(klass, **stubs)
         klass.new(stub_responses: stubs.presence || true, region: TEST_REGION, credentials: TestHelper.credentials)
       end
