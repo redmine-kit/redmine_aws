@@ -10,7 +10,7 @@
 Gem::Specification.new do |spec|
   spec.name = 'redmine_kit_aws'
   spec.version = File.read(File.join(__dir__, 'lib/redmine_kit/aws.rb'))[/VERSION = '([^']+)'/, 1]
-  spec.summary = 'The AWS item of the administration menu, shared by the Redmine Kit AWS plugins'
+  spec.summary = 'The administration menu shared by the Redmine Kit AWS plugins'
   spec.authors = ['Redmine Kit']
   spec.license = 'GPL-2.0-or-later'
   spec.homepage = 'https://github.com/redmine-kit/redmine_aws'
