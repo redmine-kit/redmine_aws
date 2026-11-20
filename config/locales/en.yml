@@ -1,4 +1,7 @@
 en:
+  # The plugin's name and description (Administration › Plugins; redmine_kit_ui's docs/plugin-names.md)
+  plugin_name_redmine_kit_aws: Redmine Kit AWS
+  plugin_description_redmine_kit_aws: The administration menu shared by the Redmine Kit AWS plugins
   label_aws: AWS
   label_aws_status: Status
   label_aws_versions: Versions

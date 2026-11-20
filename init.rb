@@ -13,7 +13,7 @@ require File.expand_path('lib/redmine_kit/aws', __dir__) unless defined?(Redmine
 Redmine::Plugin.register :redmine_kit_aws do
   name 'Redmine Kit AWS'
   author 'Redmine Kit'
-  description 'The AWS item of the administration menu, shared by the Redmine Kit AWS plugins'
+  description 'The administration menu shared by the Redmine Kit AWS plugins'
   version RedmineKit::Aws::VERSION
   url 'https://github.com/redmine-kit/redmine_aws'
   author_url 'https://github.com/redmine-kit'
