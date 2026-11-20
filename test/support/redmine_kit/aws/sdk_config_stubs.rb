@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-require 'aws-sdk-core'
+begin
+  require 'aws-sdk-core'
+rescue LoadError
+  # The tests of a plugin without the AWS SDK (redmine_kit_aws_lambda's): nothing to fix.
+end
 
 module RedmineKit
   module Aws
