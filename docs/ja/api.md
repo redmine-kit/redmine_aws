@@ -166,13 +166,15 @@ end
 
 ### テスト用のイメージの Redmine Kit AWS
 
-プラグインのテストが gem をインストールするようになるまでは、Redmine Kit AWS をチェックアウトから使います。プラグインの隣の `../redmine_kit_aws`、または `REDMINE_KIT_AWS_DIR` のディレクトリです。`bin/test` は、プラグインのチェックアウトと Redmine Kit AWS のチェックアウトから、git が管理する (または管理の対象になる) ファイルを 1 つのビルドコンテキストの `plugin/` と `redmine_kit_aws/` にコピーします。名前付きのビルドコンテキストがない Apple container と Docker で、同じ `test/Dockerfile` をビルドするためです。
+プラグインのテストが gem をインストールするようになるまでは、Redmine Kit AWS をチェックアウトから使います。プラグインの隣の `../redmine_kit_aws`、または `REDMINE_KIT_AWS_DIR` のディレクトリです。テストは、Redmine Kit のすべてのプラグインのテストが共有するベースイメージ (`test/Dockerfile`) で実行し、プラグインごとのイメージはありません。`bin/test_image` は、プラグインのチェックアウトと Redmine Kit AWS のチェックアウトから、git が管理する (または管理の対象になる) ファイルを、`/src/plugins` にマウントするフォルダーの `redmine_kit_aws_lambda/` と `redmine_kit_aws/` にコピーします。イメージのエントリポイントが、それを Redmine の `plugins/` にコピーします。
 
-```dockerfile
-COPY redmine_kit_aws plugins/redmine_kit_aws/
-COPY plugin plugins/redmine_kit_aws_lambda/
+テストでプラグインをパスで gem として使うとき (Bundler に `boot/` を読み込ませるため) は、`bin/test_image` がプラグインのフォルダーに `PluginGemfile` を書き込みます。Redmine の Gemfile は、これをプラグインの Gemfile と一緒に読み込みます。このとき、Bundler は `redmine_kit_aws` もパスで必要とします。
+
+```ruby
+gem 'redmine_kit_aws', path: '/redmine/plugins/redmine_kit_aws', require: false
+gem 'redmine_kit_aws_lambda', path: '/redmine/plugins/redmine_kit_aws_lambda'
 ```
 
-テスト用のイメージがプラグインをパスで gem として `Gemfile.local` に追加するときは、Bundler は `redmine_kit_aws` もパスで必要とします (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`)。CI は `redmine-kit/redmine_aws` を `redmine_kit_aws/` にチェックアウトし、`REDMINE_KIT_AWS_DIR` を設定します。[Redmine Kit AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda) がこれをすべて行っています。
+CI は `redmine-kit/redmine_aws` を `redmine_kit_aws/` にチェックアウトし、`REDMINE_KIT_AWS_DIR` を設定します。[Redmine Kit AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda) がこれをすべて行っています。
 
 プラグインの CI は、gem に関係する 2 つのジョブも実行します。`test (redmine_kit_aws release)` は、このプラグインの main に加えて、公開する gem の元である最新の `v0.*` のタグでテストを実行します。最初のリリースまでは、タグがないことを表示するだけです。`gem` は `bin/test-gem` を実行します。プラグインとこのプラグインの gem をビルドし、プラグインの導入のページのとおりに Redmine にインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と production 環境)。ファイルが足りない gem は、バージョンのタグで公開する前に失敗します。このプラグインの `bin/test-gem` は、導入のページのとおり (Bundler は読み込まない) と、Bundler が先に読み込む形の両方で起動します。
