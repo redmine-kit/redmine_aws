@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.license = 'GPL-2.0-or-later'
   spec.homepage = 'https://github.com/redmine-kit/redmine_aws'
   # The Ruby versions of Redmine 7.0 (its Gemfile: ruby '>= 3.2.0', '< 4.1.0').
-  spec.required_ruby_version = '>= 3.2'
+  spec.required_ruby_version = ['>= 3.2', '< 4.1']
   spec.files = Dir['{init.rb,LICENSE}', '{app,assets,boot,config,db,lib,help}/**/*', 'test/support/**/*']
   spec.require_paths = %w[lib]
   spec.metadata['github_repo'] = 'ssh://github.com/redmine-kit/redmine_aws'
