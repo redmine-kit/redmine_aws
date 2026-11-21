@@ -108,7 +108,7 @@ RedmineKit::Aws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_op
 
 | メソッド | 内容 |
 | --- | --- |
-| `client(klass, **options)` | SDK のクラスのクライアント。オプションは、弱い順に、`region` のリージョン、ここで渡したオプション、`client_options` |
+| `client(klass, **options)` | SDK のクラスのクライアント。オプションは、弱い順に、`region` のリージョン、ここで渡したオプション、`client_options`。ここで nil を渡したオプションは除き、SDK のデフォルトの解決順序に任せます (SDK は明示的な `credentials: nil` や `region: nil` をそのまま使い、署名できなくなるためです) |
 | `region` | `AWS_REGION`、なければ `AWS_DEFAULT_REGION`。どちらもなければ nil |
 | `client_options`、`client_options=` | `client` で作成するすべてのクライアントに渡すオプション。設定しなければ空で、SDK はいつもどおり認証情報、リージョン、エンドポイントを読み込む (`AWS_ENDPOINT_URL`、`AWS_ENDPOINT_URL_<SERVICE>`)。テストでは、リクエストを AWS Emulator に送るために設定する (LocalStack と moto は、プラグインのテストの資料が示すところだけ)。ほかの方法で用意できないエラーとアカウントの状態は、SDK のスタブに送る |
 | `env_true?(name)` | 環境変数が `true` かどうか。大文字と小文字を区別せず、前後の空白は無視する |

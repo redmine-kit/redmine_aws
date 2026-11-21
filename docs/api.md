@@ -96,7 +96,7 @@ RedmineKit::Aws.client(::Aws::CostExplorer::Client, region: 'us-east-1', http_op
 
 | Method | Details |
 | --- | --- |
-| `client(klass, **options)` | A client of the SDK class. Its options are, from weakest to strongest: the region of `region`, the options given here, `client_options` |
+| `client(klass, **options)` | A client of the SDK class. Its options are, from weakest to strongest: the region of `region`, the options given here, `client_options`. An option given here as nil is left out, so that the SDK's own chain decides it (the SDK takes an explicit `credentials: nil` or `region: nil` as given and then can't sign) |
 | `region` | `AWS_REGION`, then `AWS_DEFAULT_REGION`; nil when neither is set |
 | `client_options`, `client_options=` | Options for every client built with `client`. Empty unless set: the SDK then reads the credentials, the region and the endpoints as usual (`AWS_ENDPOINT_URL`, `AWS_ENDPOINT_URL_<SERVICE>`). Tests set them to send requests to AWS Emulator (LocalStack or moto only where a plugin's testing docs say so), or to SDK stubs for errors and account states that can't be set up otherwise |
 | `env_true?(name)` | Whether an environment variable is `true`, in any case, spaces ignored |

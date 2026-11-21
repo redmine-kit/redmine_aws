@@ -45,6 +45,15 @@ module RedmineKit
                      RedmineKit::Aws.client(FakeClient, region: 'us-east-1', retry_limit: 0).options)
       end
 
+      # The SDK takes credentials: nil or region: nil as given, instead of its
+      # own chain, and then fails to sign: such options are left out.
+      def test_nil_options_are_left_out
+        ENV['AWS_REGION'] = 'ap-northeast-1'
+
+        assert_equal({ region: 'ap-northeast-1', retry_limit: 2 },
+                     RedmineKit::Aws.client(FakeClient, region: nil, credentials: nil, retry_limit: 2).options)
+      end
+
       def test_client_options_over_everything
         ENV['AWS_REGION'] = 'ap-northeast-1'
         RedmineKit::Aws.client_options = { endpoint: 'https://127.0.0.1:9297', region: 'us-east-1' }

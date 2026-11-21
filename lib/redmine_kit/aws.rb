@@ -42,10 +42,12 @@ module RedmineKit
 
       # A client of an AWS service, such as RedmineKit::Aws.client(Aws::S3::Client).
       # The options given here (a region of the plugin's own, timeouts) come
-      # before client_options, so that tests can replace them.
-      def client(klass, **)
+      # before client_options, so that tests can replace them. An option given
+      # as nil is left out, because the SDK takes an explicit nil (credentials:
+      # nil, region: nil) instead of its own chain and then fails to sign.
+      def client(klass, **options)
         defaults = region ? { region: region } : {}
-        klass.new(**defaults, **, **client_options)
+        klass.new(**defaults, **options.compact, **client_options)
       end
 
       # Whether an environment variable that turns something on is true
