@@ -12,8 +12,8 @@ The Redmine plugin that the Redmine Kit AWS plugins share: the "AWS" item of Red
 
 ## Documentation
 
-- Website: https://redmine-kit.github.io/redmine_aws/ (日本語: https://redmine-kit.github.io/redmine_aws/ja/)
-- Markdown: [docs/README.md](docs/README.md) (日本語: [docs/ja/README.md](docs/ja/README.md)), with [setup](docs/setup.md), [IAM permissions](docs/iam.md), the [administration pages](docs/admin.md) and the [plugin API](docs/api.md)
+- Website: https://redmine-kit.github.io/redmine_aws/ ([日本語](https://redmine-kit.github.io/redmine_aws/ja/))
+- Markdown: [docs/README.md](docs/README.md) ([日本語](docs/ja/README.md)), with [setup](docs/setup.md), [IAM permissions](docs/iam.md), the [administration pages](docs/admin.md) and the [plugin API](docs/api.md)
 
 ## Sponsors
 
