@@ -81,4 +81,4 @@ IAM 権限、ネットワークの設定、SSM の設定を変更したあとは
 
 画面ごとに、Redmine の機能テストがあります ([testing.md](https://redmine-kit.github.io/serverless/ja/testing.html#administration-pages))。
 
-このページのスクリーンショットは、`bin/screenshots` で撮影します (Docker のヘッドレス Chromium と、Redmine のテストデータ)。画面を変更したら実行します。
+このページのスクリーンショットは、`bin/screenshots` で撮影します (Apple container が動いていれば Apple container、そうでなければ Docker のヘッドレス Chromium と、Redmine のテストデータ)。画面を変更したら実行します。
