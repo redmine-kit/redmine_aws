@@ -15,6 +15,14 @@ The Redmine plugin that the Redmine Kit AWS plugins share: the "AWS" item of Red
 - Website: https://redmine-kit.github.io/redmine_aws/ ([日本語](https://redmine-kit.github.io/redmine_aws/ja/))
 - Markdown: [docs/README.md](docs/README.md) ([日本語](docs/ja/README.md)), with [setup](docs/setup.md), [IAM permissions](docs/iam.md), the [administration pages](docs/admin.md) and the [plugin API](docs/api.md)
 
+## Help
+
+With [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) installed, the plugin's help is in `help/`: the topic AWS administration (English and Japanese), on the AWS menu, the Status tab and the connection test. The Status tab opens it from the Help panel (`help/map.yml`). Check it against the installed guide from Redmine's folder:
+
+```sh
+bin/rails redmine_kit:help:check PLUGIN=redmine_kit_aws
+```
+
 ## Sponsors
 
 <a href="https://www.keyselect.co.jp/">

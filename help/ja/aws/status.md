@@ -1,7 +1,30 @@
-# ステータス
+# AWS の管理画面
 
-「管理」›「AWS」›「ステータス」には、Redmine とインストールした Redmine Kit AWS のプラグインのバージョン、SSM Parameter Store から読み込んだ設定の名前 (値は表示しません) を表示します。Redmine Kit AWS のプラグインは、このページに項目を、隣にタブを追加します。たとえば AWS Lambda では、Lambda 関数と、Lambda で固定している Redmine の設定も表示します。
+Redmine Kit AWS は、「管理」のメニューに「AWS」を追加します。インストールした Redmine Kit AWS のプラグインごとにタブがある 1 つのページです。「AWS」で最初のタブを開きます。このページを開けるのはシステム管理者だけです。
 
-「テスト」を押すと、データベースと、インストールしたプラグインが使う AWS のサービスへの接続を 1 回ずつ確認し、「OK」または「失敗」と詳細、応答時間を表示します。このページを開けるのはシステム管理者だけです。
+| タブ | 追加するプラグイン |
+| --- | --- |
+| 「ステータス」 | Redmine Kit AWS |
+| 「ジョブ」 | Redmine Kit AWS SQS |
+| 「メール送信」、「メール受信」 | Redmine Kit AWS SES |
+| 「S3」 | Redmine Kit AWS S3 |
+| 「Cost Explorer」 | Redmine Kit AWS Cost Explorer |
 
-詳しくは [Redmine Kit AWS の管理画面](https://redmine-kit.github.io/redmine_aws/ja/admin.html) を参照してください。
+プラグインの設定は、それぞれのタブにあります。「管理」›「プラグイン」で「設定」があるのは Redmine Kit AWS S3 だけで、その「S3」タブを開きます。
+
+## ステータス
+
+「ステータス」タブは値を表示するだけで、何も変更しません。タブを開いても AWS の API は呼びません。
+
+- 「バージョン」: Redmine、Ruby、Rails と、インストールした Redmine Kit AWS の各プラグインのバージョンです。
+- 「Parameter Store」: Redmine Kit AWS SSM があるとき、Redmine の起動時に AWS Systems Manager Parameter Store から読み込んだ環境変数の名前です。値は表示しません。
+- ほかのプラグインの値: AWS Lambda では、Redmine Kit AWS Lambda が、バージョンの前に「Lambda 関数」を、あとに「読み取り専用の設定」を追加します。
+
+## 接続テスト
+
+「テスト」で、Redmine がデータベースと、インストールしたプラグインが使う AWS のサービスにつながるかを、リクエストの中で 1 回ずつ確認します。
+
+- 「データベース」: 設定したデータベースに新しく接続し、データベースとそのバージョンを表示します (例: 「PostgreSQL 16.4」)。
+- 「S3」、「SES」、「SQS」: それぞれ軽い呼び出しを 1 回します。Redmine Kit AWS S3 (バケットを設定しているとき)、Redmine Kit AWS SES、Redmine Kit AWS SQS が追加します。
+
+各行には、「OK」または「失敗」、詳細、応答時間 (ミリ秒) を表示します。失敗したときは、エラーのクラス (例: `Aws::S3::Errors::Forbidden`) だけを表示し、エラーのメッセージは Redmine のログに書きます。IAM 権限、ネットワーク、Parameter Store の設定を変えたあとに実行してください。

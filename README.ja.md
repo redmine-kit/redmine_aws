@@ -17,6 +17,16 @@ Redmine Kit AWS のプラグインが共通で使う Redmine のプラグイン�
 - Web サイト: https://redmine-kit.github.io/redmine_aws/ja/ (English: https://redmine-kit.github.io/redmine_aws/)
 - Markdown: [docs/ja/README.md](docs/ja/README.md) (English: [docs/README.md](docs/README.md))。[導入](docs/ja/setup.md)、[IAM 権限](docs/ja/iam.md)、[管理画面](docs/ja/admin.md)、[プラグインの API](docs/ja/api.md) があります。
 
+<a id="help"></a>
+
+## ヘルプ
+
+[Redmine Kit Help](https://github.com/redmine-kit/redmine_help) をインストールしていれば、プラグインのヘルプは `help/` にあります。AWS のメニュー、「ステータス」タブ、接続テストを説明するトピック「AWS の管理画面」(英語と日本語) です。「ステータス」タブで、ヘルプのパネルがこのトピックを開きます (`help/map.yml`)。Redmine のディレクトリで、インストールされたガイドに対してチェックできます。
+
+```sh
+bin/rails redmine_kit:help:check PLUGIN=redmine_kit_aws
+```
+
 <a id="sponsors"></a>
 
 ## スポンサー
