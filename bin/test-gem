@@ -15,6 +15,7 @@ cd "$(dirname "$0")/.."
 source bin/container_cli
 source bin/test_slot
 name=redmine-kit-aws-test
+stop_services_at_exit "$name"
 bin/services >/dev/null
 source bin/test_image
 if [[ "$cli" == docker ]]; then
