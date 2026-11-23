@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'yaml'
+
 # The plugin as a gem, published to GitHub Packages (.github/workflows/gem.yml).
 # The gem holds the plugin's run-time files, so that the installed gem can be
 # linked into Redmine's plugins/ (docs/setup.md#installation), and the test
@@ -19,5 +21,9 @@ Gem::Specification.new do |spec|
   spec.files = Dir['{init.rb,LICENSE}', '{app,assets,boot,config,db,lib,help}/**/*', 'test/support/**/*']
   spec.require_paths = %w[lib]
   spec.metadata['github_repo'] = 'ssh://github.com/redmine-kit/redmine_aws'
+  # The plugins it requires (config/dependencies.yml): installing the gem installs them.
+  YAML.safe_load_file(File.join(__dir__, 'config/dependencies.yml'))['requires'].each do |name, range|
+    spec.add_dependency name, range
+  end
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

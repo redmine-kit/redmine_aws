@@ -15,7 +15,7 @@ Redmine Kit AWS (`redmine_kit_aws`) is the Redmine plugin that the Redmine Kit A
 | Status | The versions of Redmine and of the Redmine Kit AWS plugins, the settings read from SSM Parameter Store, values that the other plugins add, and the connection test of the database and the AWS services | Administrators | [admin.md](admin.md#status) |
 | AWS clients | The region and the options that every plugin's AWS clients get, which tests use to send every request to AWS Emulator (LocalStack or moto only where a plugin's testing docs say so) or, for errors and account states, to SDK stubs | Always (empty unless set) | [api.md](api.md#aws-clients) |
 
-Every Redmine Kit AWS plugin (`redmine_kit_aws_*`) requires Redmine Kit AWS, without exception: each declares it in `init.rb` (`requires_redmine_plugin :redmine_kit_aws`), so Redmine refuses to start without it, and each gem depends on the `redmine_kit_aws` gem, so installing a plugin's gem installs it too ([setup.md](setup.md#installation)). The plugins:
+Every Redmine Kit AWS plugin (`redmine_kit_aws_*`) requires Redmine Kit AWS, without exception: each lists it in `config/dependencies.yml` (`requires`), so Redmine stops at boot without it and names it, and each gem depends on the `redmine_kit_aws` gem, so installing a plugin's gem installs it too ([setup.md](setup.md#installation)). The plugins:
 
 | Plugin | Contents |
 | --- | --- |

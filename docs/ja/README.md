@@ -17,7 +17,7 @@ Redmine Kit AWS (`redmine_kit_aws`) は、Redmine Kit AWS のプラグインが�
 | ステータス | Redmine と Redmine Kit AWS のプラグインのバージョン、SSM Parameter Store から読み込んだ設定、ほかのプラグインが追加する値、データベースと AWS のサービスへの接続テスト | システム管理者 | [admin.md](admin.md#status) |
 | AWS クライアント | どのプラグインの AWS クライアントにも渡すリージョンとオプション。テストでは、これですべてのリクエストを AWS Emulator に送る (LocalStack と moto は、プラグインのテストの資料が示すところだけ)。エラーとアカウントの状態は SDK のスタブに送る | 常に (設定しなければ空) | [api.md](api.md#aws-clients) |
 
-Redmine Kit AWS のプラグイン (`redmine_kit_aws_*`) は、例外なく、どれも Redmine Kit AWS を必要とします。各プラグインは `init.rb` でこれを宣言する (`requires_redmine_plugin :redmine_kit_aws`) ので、Redmine Kit AWS がなければ Redmine は起動しません。また、各プラグインの gem は `redmine_kit_aws` の gem に依存するので、プラグインの gem をインストールすると Redmine Kit AWS もインストールされます ([setup.md](setup.md#installation))。プラグインは次のとおりです。
+Redmine Kit AWS のプラグイン (`redmine_kit_aws_*`) は、例外なく、どれも Redmine Kit AWS を必要とします。各プラグインは `config/dependencies.yml` (`requires`) にこれを書くので、Redmine Kit AWS がなければ Redmine は起動時に停止し、その名前を示します。また、各プラグインの gem は `redmine_kit_aws` の gem に依存するので、プラグインの gem をインストールすると Redmine Kit AWS もインストールされます ([setup.md](setup.md#installation))。プラグインは次のとおりです。
 
 | プラグイン | 内容 |
 | --- | --- |

@@ -1,18 +1,19 @@
 # Plugin API
 
-What the other Redmine Kit AWS plugins use from Redmine Kit AWS. Every Redmine Kit AWS plugin requires it, also one that uses nothing of it, in `init.rb` and in its gemspec:
+What the other Redmine Kit AWS plugins use from Redmine Kit AWS. Every Redmine Kit AWS plugin requires it, also one that uses nothing of it, in its `config/dependencies.yml`, as every plugin of Redmine Kit lists the plugins it requires:
 
-```ruby
-# init.rb, in Redmine::Plugin.register
-requires_redmine_plugin :redmine_kit_aws, version_or_higher: '0.1.0'
+```yaml
+# config/dependencies.yml
+requires:
+  redmine_kit_aws: "~> 0.1"
 ```
 
 ```ruby
-# <plugin>.gemspec
-spec.add_dependency 'redmine_kit_aws', '~> 0.1'
+# init.rb, first: stops Redmine at boot and names a required plugin that is missing
+load File.expand_path('config/dependencies.rb', __dir__)
 ```
 
-Redmine loads plugins in alphabetical order, so `redmine_kit_aws` has run its `init.rb` before the others run theirs.
+The gemspec depends on the gems of `requires` at their ranges. The check doesn't depend on the order in which Redmine runs the plugins' `init.rb`; code that runs in `init.rb` uses `RedmineKit::Aws` through Rails' code loader, which has every plugin's `lib/` by then.
 
 ## Namespace and files
 

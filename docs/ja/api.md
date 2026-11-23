@@ -1,18 +1,19 @@
 # プラグインの API
 
-ほかの Redmine Kit AWS のプラグインが Redmine Kit AWS から使うものです。Redmine Kit AWS のプラグインは、何も使わないプラグインも含めてどれも、`init.rb` と gemspec でこのプラグインを必要とします。
+ほかの Redmine Kit AWS のプラグインが Redmine Kit AWS から使うものです。Redmine Kit AWS のプラグインは、何も使わないプラグインも含めてどれも、Redmine Kit のすべてのプラグインが必須プラグインを書くのと同じく、`config/dependencies.yml` でこのプラグインを必要とします。
 
-```ruby
-# init.rb の Redmine::Plugin.register の中
-requires_redmine_plugin :redmine_kit_aws, version_or_higher: '0.1.0'
+```yaml
+# config/dependencies.yml
+requires:
+  redmine_kit_aws: "~> 0.1"
 ```
 
 ```ruby
-# <プラグイン>.gemspec
-spec.add_dependency 'redmine_kit_aws', '~> 0.1'
+# init.rb の最初: 必須プラグインがないとき、Redmine を起動時に停止し、その名前を示します
+load File.expand_path('config/dependencies.rb', __dir__)
 ```
 
-Redmine はプラグインをアルファベット順に読み込むので、ほかのプラグインの `init.rb` より前に、`redmine_kit_aws` の `init.rb` が実行されます。
+gemspec は `requires` の gem にその範囲で依存します。この確認は、Redmine がプラグインの `init.rb` を実行する順序に左右されません。`init.rb` で実行するコードは、`RedmineKit::Aws` を Rails のコードローダーから使います。その時点で、コードローダーにはすべてのプラグインの `lib/` があります。
 
 <a id="namespace-and-files"></a>
 

@@ -7,15 +7,26 @@ What a Redmine server needs to use Redmine Kit AWS: installation, configuration,
 - Redmine 7.0 or later. Nothing in the plugin depends on the database; its tests run on PostgreSQL 16.
 - Any server: on AWS Lambda, on EC2 or ECS, or elsewhere.
 
+### Required plugins
+
+None.
+
+### Optional plugins
+
+| Plugin | With it |
+| --- | --- |
+| [Redmine Kit AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm) | the Parameter Store state on the Status tab |
+| [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) | this plugin's help in the Help panel |
+
 ## Installation
 
 1. Get the plugin into `plugins/redmine_kit_aws` of Redmine 7.0: the gem below, or a checkout of this repository in a folder named after the plugin's id, which differs from the repository's name (`git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws`). The plugin has no gems of its own, so it needs no line in `Gemfile.local` for itself. With checkouts, the plugins that have a `boot/` file (Redmine Kit AWS Lambda, SES, SQS and SSM) are added to `Gemfile.local` by path, and then `redmine_kit_aws` is added by path too, once however many plugins are added (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`; the setup of each plugin shows the lines).
-2. Install the Redmine Kit AWS plugins that use it in `plugins/`, next to it. Redmine loads plugins in alphabetical order, so `redmine_kit_aws` comes first; each of them checks that it is there (`requires_redmine_plugin :redmine_kit_aws`).
+2. Install the Redmine Kit AWS plugins that use it in `plugins/`, next to it. The order doesn't matter: at boot, Redmine stops and names `redmine_kit_aws` when it is missing ([Required plugins](#required-plugins)).
 3. No migration is needed.
 
 ### Gem
 
-Each version tag (`v*`) publishes the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`; `.github/workflows/gem.yml`). The gem holds the run-time files (`init.rb`, `boot/`, `lib/`, `app/`, `assets/`, `config/`, `help/`, `LICENSE`) and `test/support/`; the plugin's `Gemfile` is not in it. The gems of the other Redmine Kit AWS plugins depend on it, so Bundler installs it with them. Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
+`bin/release` publishes each version of the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`, [Releasing](#releasing)). The gem holds the run-time files (`init.rb`, `boot/`, `lib/`, `app/`, `assets/`, `config/`, `help/`, `LICENSE`) and `test/support/`; the plugin's `Gemfile` is not in it. The gems of the other Redmine Kit AWS plugins depend on it, so Bundler installs it with them. Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
 
 ```sh
 ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
@@ -68,6 +79,16 @@ bin/services --down # stops PostgreSQL (and Chromium)
 ```
 
 The other plugins' tests load this plugin from a checkout next to theirs (`../redmine_kit_aws`, or the directory in `REDMINE_KIT_AWS_DIR`) ([api.md](api.md#tests-of-the-plugins)).
+
+## Releasing
+
+`bin/release` publishes the gem of the gemspec's version to Redmine Kit's registry on GitHub Packages, from a clean
+`main` only: the version must be newer than the last tag `v<version>`, the required plugins must resolve from the
+registry at their ranges (`config/dependencies.yml`), and `bin/lint`, `bin/test` and `bin/test-gem` must pass. It
+pushes with the key `github` of `~/.gem/credentials` (`:github: Bearer <token>`, a token with `write:packages`) and
+reads the registry with `BUNDLE_RUBYGEMS__PKG__GITHUB__COM`; no token goes into the repository or the output. It makes
+the signed tag `v<version>` and prints the command that pushes it. Versions are semantic: a change that breaks a plugin
+using this one raises the major version (the minor one before 1.0), and the ranges in the plugins that require it.
 
 ## To verify
 

@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# The plugins this one requires (config/dependencies.yml): without one,
+# Redmine stops here and names it.
+load File.expand_path('config/dependencies.rb', __dir__)
+
 # Redmine runs this when it prepares the code, again on every reload. The
 # other AWS plugins require this one and register their tabs and checks after
 # it (Redmine loads plugins in alphabetical order).

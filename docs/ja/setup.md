@@ -9,19 +9,34 @@ Redmine Kit AWS を使う Redmine に必要なもの (インストール、設�
 - Redmine 7.0 以降。プラグインはデータベースに依存しません。テストは PostgreSQL 16 で実行します。
 - どのサーバーでも動きます。AWS Lambda、EC2、ECS、それ以外の環境。
 
+<a id="required-plugins"></a>
+
+### 必須プラグイン
+
+ありません。
+
+<a id="optional-plugins"></a>
+
+### オプションのプラグイン
+
+| プラグイン | 使える機能 |
+| --- | --- |
+| [Redmine Kit AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm) | 「状態」タブの Parameter Store の状態 |
+| [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) | ヘルプのパネルに表示するこのプラグインのヘルプ |
+
 <a id="installation"></a>
 
 ## インストール
 
 1. プラグインを Redmine 7.0 の `plugins/redmine_kit_aws` に置きます。下の gem か、このリポジトリのチェックアウトです。チェックアウトのディレクトリ名は、リポジトリ名ではなく、プラグインの ID にします (`git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws`)。プラグイン自身が使う gem はないので、このプラグインのための `Gemfile.local` への追加は不要です。チェックアウトの場合、`boot/` のファイルを持つプラグイン (Redmine Kit AWS Lambda、SES、SQS、SSM) はパスで `Gemfile.local` に追加し、そのときは `redmine_kit_aws` もパスで追加します。いくつのプラグインを追加しても、`redmine_kit_aws` の行は 1 つだけです (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`。書く行は各プラグインの導入のページにあります)。
-2. このプラグインを使う Redmine Kit AWS のプラグインを、このプラグインと同じ `plugins/` にインストールします。Redmine はプラグインをアルファベット順に読み込むので、`redmine_kit_aws` が先になります。各プラグインは、このプラグインがあることを確認します (`requires_redmine_plugin :redmine_kit_aws`)。
+2. このプラグインを使う Redmine Kit AWS のプラグインを、このプラグインと同じ `plugins/` にインストールします。順序は問いません。`redmine_kit_aws` がないときは、Redmine が起動時に停止し、その名前を示します ([必須プラグイン](#required-plugins))。
 3. migration は不要です。
 
 <a id="gem"></a>
 
 ### gem
 
-バージョンのタグ (`v*`) ごとに、プラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`) に公開します (`.github/workflows/gem.yml`)。gem には、実行に必要なファイル (`init.rb`、`boot/`、`lib/`、`app/`、`assets/`、`config/`、`help/`、`LICENSE`) と `test/support/` が入ります。プラグインの `Gemfile` は入れません。ほかの Redmine Kit AWS のプラグインの gem がこの gem に依存するので、Bundler がいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
+`bin/release` が、各バージョンのプラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`。[リリース](#releasing)) に公開します。gem には、実行に必要なファイル (`init.rb`、`boot/`、`lib/`、`app/`、`assets/`、`config/`、`help/`、`LICENSE`) と `test/support/` が入ります。プラグインの `Gemfile` は入れません。ほかの Redmine Kit AWS のプラグインの gem がこの gem に依存するので、Bundler がいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
 
 ```sh
 ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
@@ -71,7 +86,7 @@ GitHub Packages からインストールするには、公開のパッケージ�
 
 `COVERAGE=1` を付けると、プラグインのテストは、プラグイン自身のファイルのカバレッジ (SimpleCov。Cobertura の XML の `coverage/coverage.xml`) も出力し、1 プロセスで実行します。CI は Ruby 4.0 でこれを有効にし、レポートを `plugin` フラグで [Codecov](https://codecov.io/gh/redmine-kit/redmine_aws) に送信します。送信の認証は OIDC (`id-token: write`) なので、トークンをシークレットに保存しません。Codecov のステータスは参考情報で、コミットや Pull Request を失敗にしません (`codecov.yml`)。
 
-`bin/test-gem` は gem を確認します。チェックアウトから gem をビルドし、[gem](#gem) のとおりにインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。CI もこれを実行するので、gem にないファイルがあれば、ほかのプラグインや Serverless がインストールする前に失敗します。
+`bin/test-gem` は gem を確認します。チェックアウトから gem をビルドし、[gem](#gem) のとおりにインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。`bin/release` もこれを実行するので、gem にないファイルがあれば、ほかのプラグインや Serverless がインストールする前に失敗します。
 
 ```sh
 bin/test            # プラグインのテストと、関係する Redmine のテスト
@@ -84,6 +99,11 @@ bin/services --down # PostgreSQL (と Chromium) を停止する
 ```
 
 ほかのプラグインのテストは、このプラグインを隣のチェックアウト (`../redmine_kit_aws`、または `REDMINE_KIT_AWS_DIR` のディレクトリ) から読み込みます ([api.md](api.md#tests-of-the-plugins))。
+
+<a id="releasing"></a>
+## リリース
+
+`bin/release` は、gemspec のバージョンの gem を GitHub Packages の Redmine Kit のレジストリに公開します。実行できるのは変更のない `main` からだけで、バージョンが最後のタグ `v<version>` より新しいこと、必須プラグインがレジストリから範囲どおりに解決できること (`config/dependencies.yml`)、`bin/lint`、`bin/test`、`bin/test-gem` が成功することが条件です。公開には `~/.gem/credentials` のキー `github` (`:github: Bearer <token>`。`write:packages` を持つトークン) を使い、レジストリの読み取りには `BUNDLE_RUBYGEMS__PKG__GITHUB__COM` を使います。トークンはリポジトリにも出力にも含めません。署名付きのタグ `v<version>` を作り、それをプッシュするコマンドを表示します。バージョンはセマンティックバージョニングに従います。このプラグインを使うプラグインが動かなくなる変更ではメジャーバージョン (1.0 より前はマイナーバージョン) を上げ、それを必要とするプラグインの範囲も変えます。
 
 <a id="to-verify"></a>
 
