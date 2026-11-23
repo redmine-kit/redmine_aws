@@ -1,0 +1,7 @@
+<%# A section of values of the Status tab (RedmineKit::Aws::Status#sections). %>
+<h3><%= section[:label] %></h3>
+<% if section[:rows].any? %>
+<%= render partial: 'aws_admin/values', locals: { rows: aws_section_rows(section[:rows]) } %>
+<% else %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

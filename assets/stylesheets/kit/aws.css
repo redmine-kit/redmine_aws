@@ -1,0 +1,22 @@
+/* Redmine Kit AWS: the stylesheet of the plugin's module for the new UI, built from frontend/src by `npm run build`
+   (frontend/vite.config.js): the Tailwind CSS utilities its source uses. Edit the source, not this file. */
+/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
+@layer theme;
+
+@layer utilities {
+  .flex {
+    display: flex;
+  }
+
+  .px-gutter {
+    padding-inline: var(--rk-gutter);
+  }
+
+  .text-accent {
+    color: var(--rk-accent);
+  }
+
+  .text-warning {
+    color: var(--rk-warning-text);
+  }
+}

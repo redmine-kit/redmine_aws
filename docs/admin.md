@@ -61,6 +61,19 @@ When a check fails, the details show only the class of the error, such as `Aws::
 
 Use the checks after changing IAM permissions, network settings or SSM settings, to see how far requests reach. In a VPC, they also help check the VPC endpoint and security group settings.
 
+### In the new UI
+
+With [Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) installed, the new UI draws the Status tab itself (`config/kit_ui.yml`, the component `AwsStatus` built from `frontend/` into `assets/javascripts/kit/aws.js`). It shows the same values and allows the same, from the same controller and with the same check (`require_admin`):
+
+| Part | In the new UI |
+| --- | --- |
+| The AWS menu | Administration's sidebar has the item "AWS" with the icon `server`; it opens the first tab. The page has the header "AWS" and one strip of tabs, to which the other Redmine Kit AWS plugins add theirs ([api.md](api.md#the-new-ui)) |
+| The sections of values | One section per section of Redmine's page, in the same order and with the same headings: label and value pairs, a list of names (Parameter Store), or "No data to display" |
+| Connection test | "Test" in the section's heading runs the checks (`POST /admin/aws/status/check.json`); each check is a row with its name, what it returned or the class of its error under it, the time it took and its state (an icon named "OK" or "Failed") |
+| While loading | The Versions section's first rows and the connection test; the other rows and sections come with the data |
+
+The tab reads `GET /admin/aws/status.json` (the sections of values: each section's name, heading and rows) with the browser's session. The values are formatted on the server with Redmine's helpers, the same as on Redmine's page. A section that a plugin registers as a view partial is drawn on Redmine's page only.
+
 ## Permissions
 
 The pages call no AWS API of this plugin's own; see [iam.md](iam.md).

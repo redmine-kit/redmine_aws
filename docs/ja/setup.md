@@ -21,7 +21,8 @@ Redmine Kit AWS を使う Redmine に必要なもの (インストール、設�
 
 | プラグイン | 使える機能 |
 | --- | --- |
-| [Redmine Kit AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm) | 「状態」タブの Parameter Store の状態 |
+| [Redmine Kit AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm) | 「ステータス」タブの Parameter Store の状態 |
+| [Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) | 新しい UI の「ステータス」タブの画面 ([admin.md](admin.md#in-the-new-ui)) |
 | [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) | ヘルプのパネルに表示するこのプラグインのヘルプ |
 
 <a id="installation"></a>
@@ -80,7 +81,7 @@ GitHub Packages からインストールするには、公開のパッケージ�
 
 ## テスト
 
-テストは `test/` にあり、Redmine の標準の仕組みで、Redmine 7.0.3 と PostgreSQL 16 で実行します。Apple container がインストールされて動いていれば Apple container で、そうでなければ Docker で実行します (`CONTAINER_CLI=container` または `docker` で選べます)。1 台のマシンで同時に実行する redmine-kit のリポジトリのテストは 2 つまでで (`TEST_SLOTS`)、空きを待ってから始まります。`bin/test` は、プラグインのテストのあと、管理メニューとプラグインに関係する Redmine 本体のテストを実行します。`bin/test --redmine` は、プラグインをインストールした状態で Redmine 本体のすべてのテストを実行します。CI はこちらを使い、静的チェックとテストを Ruby 3.2 と 4.0 で実行します。ローカルでは、`TEST_RUBY=3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
+テストは `test/` にあり、Redmine の標準の仕組みで、Redmine 7.0.3 と PostgreSQL 16 で実行します。Apple container がインストールされて動いていれば Apple container で、そうでなければ Docker で実行します (`CONTAINER_CLI=container` または `docker` で選べます)。1 台のマシンで同時に実行する redmine-kit のリポジトリのテストは 2 つまでで (`TEST_SLOTS`)、空きを待ってから始まります。`bin/test` は、プラグインのテストを [Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) をインストールした状態 (隣のチェックアウト `../redmine_kit_ui` の `HEAD`。`REDMINE_KIT_UI` と `REDMINE_KIT_UI_REF` で別のものを選べます) と、インストールしない状態で実行し、そのあと、管理メニューとプラグインに関係する Redmine 本体のテストを Redmine Kit UI なしで実行します。CI は、トークン `REDMINE_KIT_UI_TOKEN` で redmine_kit_ui をプラグインの隣にチェックアウトします。`bin/test --redmine` は、プラグインをインストールした状態で Redmine 本体のすべてのテストを実行します。CI はこちらを使い、静的チェックとテストを Ruby 3.2 と 4.0 で実行します。ローカルでは、`TEST_RUBY=3.2 bin/test` (または `bin/lint`) で Ruby 3.2 で実行します。
 
 実行は、終わったときに (テストの成功、失敗、中断のいずれでも)、自分が起動したサービスのコンテナを停止します (削除はしません)。実行の前から動いていたコンテナと、このリポジトリの別の実行がまだ使っているコンテナは、そのまま動かしておきます。`KEEP_SERVICES=1` を指定すると、実行の後も動かしたままにします。
 
@@ -89,13 +90,22 @@ GitHub Packages からインストールするには、公開のパッケージ�
 `bin/test-gem` は gem を確認します。チェックアウトから gem をビルドし、[gem](#gem) のとおりにインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。`bin/release` もこれを実行するので、gem にないファイルがあれば、ほかのプラグインや Serverless がインストールする前に失敗します。
 
 ```sh
-bin/test            # プラグインのテストと、関係する Redmine のテスト
+bin/test            # redmine_kit_ui あり・なしのプラグインのテストと、関係する Redmine のテスト
 bin/test --redmine  # Redmine のすべてのテストも実行する
 COVERAGE=1 bin/test # カバレッジを coverage/coverage.xml に出力する
 bin/test-gem        # gem をビルド・インストールし、plugins/ にリンクして起動する
 bin/lint            # RuboCop
 bin/screenshots     # admin.md のスクリーンショット
 bin/services --down # PostgreSQL (と Chromium) を停止する
+```
+
+新しい UI のモジュールは、`frontend/` で Node.js (バージョンは `frontend/.nvmrc`) を使って確認します。`.npmrc` には `ignore-scripts=true` があり、`@redmine-kit/ui` と `@redmine-kit/plugin` は、隣にある ui リポジトリのチェックアウト (`../../ui/packages/…`) から取得します。
+
+```sh
+cd frontend
+npm install
+npm run check       # 型チェック、コンポーネントのテスト (vitest)、ビルド、kit-check-ui、Storybook のビルド
+npm run storybook   # タブの状態の Storybook (ポート 6008)
 ```
 
 ほかのプラグインのテストは、このプラグインを隣のチェックアウト (`../redmine_kit_aws`、または `REDMINE_KIT_AWS_DIR` のディレクトリ) から読み込みます ([api.md](api.md#tests-of-the-plugins))。

@@ -15,8 +15,13 @@ module RedmineKit
       def setup
         Admin.register_tab(:status, label: :label_aws_status, url: { controller: 'aws_status', action: 'index' },
                                     position: 10)
-        Admin.register_status_section(:versions, partial: 'aws_status/versions', position: 20)
-        Admin.register_status_section(:loaded_settings, partial: 'aws_status/loaded_settings', position: 30)
+        Admin.register_status_section(:versions, label: :label_aws_versions, position: 20) do |_view, status|
+          status.versions.map { |name, version| { name: name, value: version } }
+        end
+        Admin.register_status_section(:loaded_settings, label: :label_aws_loaded_settings,
+                                                        position: 30) do |_view, status|
+          status.loaded_settings&.map { |name| { name: name, code: true } }
+        end
         Admin.register_check(:database, label: :label_aws_check_database) { Status.database_check }
       end
 

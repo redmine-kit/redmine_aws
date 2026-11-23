@@ -30,6 +30,9 @@ fi
 # plugins/; and required early by Bundler (gem 'redmine_kit_aws'), as a plugin's
 # boot/ file may do. A database of this run's own, dropped at the end.
 "$cli" run --rm "${run_opts[@]}" "${net[@]}" -e TEST_DATABASE="redmine_test_$$" "$image" sh -ec '
+  # without redmine_kit_ui, which bin/test_image adds for bin/test: the gem
+  # alone (its Gemfile kept, so that the installed gems stay the bundle'"'"'s)
+  mv plugins/redmine_kit_ui /tmp/ && mkdir plugins/kit_ui_gems && cp /tmp/redmine_kit_ui/Gemfile plugins/kit_ui_gems/
   (cd plugins/redmine_kit_aws && gem build --quiet redmine_kit_aws.gemspec --output /tmp/redmine_kit_aws.gem)
   rm -rf plugins/redmine_kit_aws
   gem install --local --no-document --quiet /tmp/redmine_kit_aws.gem

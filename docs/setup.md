@@ -16,6 +16,7 @@ None.
 | Plugin | With it |
 | --- | --- |
 | [Redmine Kit AWS SSM](https://github.com/redmine-kit/redmine_aws_ssm) | the Parameter Store state on the Status tab |
+| [Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) | the new UI's screen of the Status tab ([admin.md](admin.md#in-the-new-ui)) |
 | [Redmine Kit Help](https://github.com/redmine-kit/redmine_help) | this plugin's help in the Help panel |
 
 ## Installation
@@ -60,7 +61,7 @@ The permissions the plugin needs, with an example policy, are in [iam.md](iam.md
 
 ## Tests
 
-The tests are in `test/` and run with Redmine's standard mechanism, in Redmine 7.0.3 on PostgreSQL 16, in Apple container when it is installed and running, else in Docker (`CONTAINER_CLI=container` or `docker` chooses). At most two test runs of the redmine-kit repositories run at once on a machine (`TEST_SLOTS`); a run waits for a free slot. `bin/test` runs the plugin's tests, then Redmine's own tests around the administration menu and the plugins; `bin/test --redmine` runs every Redmine test with the plugin installed, as the CI does. CI runs the lint and the tests on Ruby 3.2 and 4.0; locally, `TEST_RUBY=3.2 bin/test` (or `bin/lint`) runs them on Ruby 3.2.
+The tests are in `test/` and run with Redmine's standard mechanism, in Redmine 7.0.3 on PostgreSQL 16, in Apple container when it is installed and running, else in Docker (`CONTAINER_CLI=container` or `docker` chooses). At most two test runs of the redmine-kit repositories run at once on a machine (`TEST_SLOTS`); a run waits for a free slot. `bin/test` runs the plugin's tests with [Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) installed (from the checkout next to this one, `../redmine_kit_ui` at `HEAD`; `REDMINE_KIT_UI` and `REDMINE_KIT_UI_REF` choose another), then without it, then Redmine's own tests around the administration menu and the plugins, without it; CI checks out redmine_kit_ui next to the plugin with the token `REDMINE_KIT_UI_TOKEN`; `bin/test --redmine` runs every Redmine test with the plugin installed, as the CI does. CI runs the lint and the tests on Ruby 3.2 and 4.0; locally, `TEST_RUBY=3.2 bin/test` (or `bin/lint`) runs them on Ruby 3.2.
 
 A run stops the service containers it started (it doesn't remove them) when it ends, whether the tests pass, fail or are interrupted. Containers that were running before the run, or that another run of this repository still uses, are left running. `KEEP_SERVICES=1` keeps them running after the run.
 
@@ -69,13 +70,22 @@ With `COVERAGE=1`, the plugin's tests also write the coverage of the plugin's ow
 `bin/test-gem` checks the gem: it builds the gem from the checkout, installs it as [Gem](#gem) says, links it into `plugins/` and starts Redmine with every file loaded (`zeitwerk:check`, and the production environment, which loads them at start-up). CI runs it too, so a file missing from the gem fails before the other plugins or Serverless install it.
 
 ```sh
-bin/test            # the plugin's tests and Redmine's tests around them
+bin/test            # the plugin's tests with and without redmine_kit_ui, and Redmine's tests around them
 bin/test --redmine  # with every Redmine test
 COVERAGE=1 bin/test # with the coverage in coverage/coverage.xml
 bin/test-gem        # the gem: built, installed, linked into plugins/, booted
 bin/lint            # RuboCop
 bin/screenshots     # the screenshots of admin.md
 bin/services --down # stops PostgreSQL (and Chromium)
+```
+
+The new UI's module is checked in `frontend/` with Node.js (the version in `frontend/.nvmrc`); `.npmrc` has `ignore-scripts=true`, and `@redmine-kit/ui` and `@redmine-kit/plugin` come from the checkout of the ui repository next to this one (`../../ui/packages/…`):
+
+```sh
+cd frontend
+npm install
+npm run check       # type check, the components' tests (vitest), the build, kit-check-ui, the Storybook's build
+npm run storybook   # the Storybook of the tab's states, on port 6008
 ```
 
 The other plugins' tests load this plugin from a checkout next to theirs (`../redmine_kit_aws`, or the directory in `REDMINE_KIT_AWS_DIR`) ([api.md](api.md#tests-of-the-plugins)).

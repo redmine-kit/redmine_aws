@@ -17,6 +17,20 @@ module RedmineKit
         RedmineKit::Aws::Ssm.loaded if defined?(RedmineKit::Aws::Ssm) && RedmineKit::Aws::Ssm.respond_to?(:loaded)
       end
 
+      # The parts of the Status tab in their order (Admin.register_status_section),
+      # one place for both UIs: a section of values as { name:, label:, rows: }
+      # (its heading in the user's language), a section of a partial as
+      # { name:, partial: } (Redmine's own page only). A section whose block
+      # returns nil is left out. view: the view whose helpers the blocks use.
+      def sections(view)
+        Admin.status_sections.filter_map do |section|
+          next { name: section.name, partial: section.partial } if section.partial
+
+          rows = section.rows.call(view, self)
+          { name: section.name, label: view.l(section.label), rows: rows } unless rows.nil?
+        end
+      end
+
       # Whether a plugin id is of the family: redmine_kit_aws itself or one of
       # its parts, redmine_kit_aws_<part>. Not every id that starts with
       # redmine_kit_aws: another plugin may be named redmine_kit_awsome.

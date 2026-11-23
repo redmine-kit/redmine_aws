@@ -54,17 +54,6 @@ class AwsStatusControllerTest < Redmine::ControllerTest
     assert_select 'h3', text: 'Parameter Store', count: 0
   end
 
-  def test_registered_sections_are_shown_in_order
-    RedmineKit::Aws::Admin.register_status_section(:early, partial: 'aws_status/versions', position: 5)
-    get :index
-
-    assert_response :success
-    assert_select 'h3', text: 'Versions', count: 2
-    assert_equal %w[early versions loaded_settings], RedmineKit::Aws::Admin.status_sections.map(&:name)
-  ensure
-    RedmineKit::Aws::Admin.instance_variable_get(:@status_sections).delete('early')
-  end
-
   def test_check_runs_the_connection_checks
     post :check
 

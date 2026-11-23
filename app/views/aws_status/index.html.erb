@@ -1,7 +1,11 @@
 <%= render partial: 'aws_admin/tabs', locals: { selected: 'status' } %>
 
-<% RedmineKit::Aws::Admin.status_sections.each do |section| %>
-<%= render partial: section.partial, locals: { status: @status } %>
+<% @status.sections(self).each do |section| %>
+<% if section[:partial] %>
+<%= render partial: section[:partial], locals: { status: @status } %>
+<% else %>
+<%= render partial: 'aws_status/section', locals: { section: section } %>
+<% end %>
 <% end %>
 
 <h3><%= l(:label_aws_connection_check) %></h3>
@@ -9,11 +13,5 @@
 <p><%= link_to l(:button_test), aws_status_check_path, method: :post %></p>
 
 <% if @results %>
-<%= render partial: 'aws_admin/values', locals: {
-      css: 'checks',
-      rows: @results.map { |result|
-        { name: l(result.label), ok: result.ok, value: result.detail,
-          note: "#{number_with_delimiter(result.milliseconds)} ms" }
-      }
-    } %>
+<%= render partial: 'aws_admin/values', locals: { css: 'checks', rows: aws_check_rows(@results) } %>
 <% end %>

@@ -79,10 +79,15 @@ end
 ## ステータスのタブ
 
 ```ruby
-RedmineKit::Aws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
+RedmineKit::Aws::Admin.register_status_section(:lambda_function, label: :label_aws_lambda_function,
+                                                                 position: 10) do |view, _status|
+  [{ name: view.l(:field_aws_lambda_function_role), value: role || '-', note: 'REDMINE_ROLE' }]
+end
 ```
 
-`register_status_section(name, partial:, position:)` は、ステータスのタブに項目を追加します。ビューのパーシャルを、ローカル変数 `status` (`RedmineKit::Aws::Status`) を渡して、タブ自身の項目 (バージョンは 20、Parameter Store は 30) の間の位置に表示します。接続テストは最後です。`status_sections` は、項目を順序どおりに返します。タブは、ファミリーのプラグインのバージョンを表示します。`redmine_kit_aws` と、ID が `redmine_kit_aws_` で始まるプラグインです (`RedmineKit::Aws::Status.family?`)。
+`register_status_section(name, label:, position:) { |view, status| … }` は、ステータスのタブに値の項目を、タブ自身の項目 (バージョンは 20、Parameter Store は 30) の間の位置に追加します。接続テストは最後です。`label` は見出しの i18n のキーです。ブロックはビュー (Redmine のヘルパー。`l`、`format_object`、`number_with_delimiter`) とステータス (`RedmineKit::Aws::Status`) を受け取り、行を返します。行は、`name` と、必要に応じて `value` と `note` を持つハッシュで ([値の表示](#values) と同じ)、名前がコード (パラメータの名前) なら `code: true` を持ちます。「表示するデータがありません」には `[]` を、項目を表示しないときは `nil` を返します。この項目は、同じ行から両方の UI が描画します。Redmine の画面は `aws_admin/values` で、新しい UI はタブの JSON から描画します ([新しい UI](#the-new-ui))。`RedmineKit::Aws::Status#sections(view)` は、項目を行といっしょに順序どおりに返します。
+
+`register_status_section(name, partial:, position:)` は、代わりにビューのパーシャルを追加し、ローカル変数 `status` を渡して表示します。表示するのは Redmine の画面だけで、新しい UI には表示しません。項目はラベルとブロック、またはパーシャルのどちらかを取ります (それ以外は `ArgumentError`)。`status_sections` は、項目を順序どおりに返します。タブは、ファミリーのプラグインのバージョンを表示します。`redmine_kit_aws` と、ID が `redmine_kit_aws_` で始まるプラグインです (`RedmineKit::Aws::Status.family?`)。
 
 <a id="values"></a>
 
@@ -97,6 +102,24 @@ RedmineKit::Aws::Admin.register_status_section(:lambda_function, partial: 'aws_l
 ```
 
 `aws_admin/values` は、編集しない値 (バージョン、状態、確認の結果) を、「管理」›「情報」と同じ形で表示します ([Redmine Design Guide: 情報](https://redmine-kit.github.io/design-guide/ja/information.html))。ヘッダー行のない `table.list.values` と、そのあとの `<br />` です。各行はハッシュで、`name` (`td.name`) と、必要に応じて `value` (`td.value`)、`note` (値の下の `em.info`。値の元の環境変数や設定など)、`ok` (`true` か `false`。Redmine のアイコンの `td.tick` と、行のクラス `ok` か `failed`) を持ちます。`css` はテーブルにクラスを追加します (接続テストは `checks`)。部分テンプレートは、ページの表の数にかかわらず、スタイルシート (`assets/stylesheets/aws_values.css`) をページの `header_tags` に 1 回だけ追加します。名前は 1 行のままで、長い値 (digest 付きのイメージ URI など) は、名前を狭めずに、任意の位置で折り返します。Redmine Kit AWS のどのプラグインも、編集しない値は、「ステータス」のタブでも自身のタブでも、これで表示します。
+
+<a id="the-new-ui"></a>
+
+## 新しい UI
+
+[Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) をインストールしていれば、AWS のページは新しい UI が描画します ([admin.md](admin.md#in-the-new-ui))。複数のプラグインのタブを持つ「管理」のページです (redmine_kit_ui の [Kit 対応のプラグイン](https://github.com/redmine-kit/redmine_kit_ui/blob/main/docs/ja/plugins-kit.md#an-administration-page-of-several-plugins))。このプラグインのマニフェスト (`config/kit_ui.yml`) は、管理メニューの項目 `aws` にアイコンを付け、ステータスのタブを宣言します。
+
+```yaml
+menus:
+  admin_menu:
+    aws: { icon: server }
+screens:
+  - { path: /admin/aws/status, component: AwsStatus, layout: admin, menu_item: aws, title: label_aws, tab: label_aws_status, position: 10 }
+```
+
+- **ほかのプラグインのタブ**は、そのプラグイン自身のマニフェストの画面です。`admin/aws/` の下のタブのルートで、`layout: admin`、`menu_item: aws`、`title: label_aws`、`tab` にタブのラベル、`position` に `register_tab` の位置を指定します。新しい UI がページのカード、見出し「AWS」、すべてのプラグインのタブの 1 列を描画し、プラグインのコンポーネントがタブの内容を、タブのコントローラーの JSON (Redmine の画面と同じアクションで、`require_admin` 付き) から描画します。
+- **ステータスのタブの項目**は、値の項目 (ラベルとブロックを指定した `register_status_section`) です。タブの JSON がその行を返し、`AwsStatus` が描画します。プラグインに新しい UI のコードは要りません。
+- **タブの JSON** は、ブラウザーのセッション (kit リクエスト) で使います。`GET /admin/aws/status.json` は値の項目だけを `{ sections: [{ name, label, rows }] }` で返します。`POST /admin/aws/status/check.json` は確認を実行し、`{ results: [{ name, ok, value, note }] }` (確認の名前、成功したか、返した値または例外のクラス、「12 ms」のようなかかった時間) を返します。どちらも `require_admin` 付きです。
 
 <a id="aws-clients"></a>
 

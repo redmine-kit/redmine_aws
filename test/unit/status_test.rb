@@ -28,6 +28,28 @@ module RedmineKit
       ensure
         Redmine::Plugin.unregister(:redmine_kit_awsome)
       end
+
+      # A section is values (a label and its rows) or a partial, never both or neither.
+      def test_a_status_section_takes_a_label_and_rows_or_a_partial
+        rows = -> { [] }
+        [{ label: :label_aws_status }, {}, { partial: 'p', label: :label_aws_status }].each do |options|
+          assert_raises(ArgumentError, options.inspect) do
+            Admin.register_status_section(:wrong, position: 1, **options)
+          end
+        end
+        assert_raises(ArgumentError) { Admin.register_status_section(:wrong, position: 1, partial: 'p', &rows) }
+        assert_not Admin.status_sections.map(&:name).include?('wrong')
+      end
+
+      def test_sections_give_the_rows_and_leave_out_a_section_without_rows
+        view = ApplicationController.new.view_context
+        sections = Status.new.sections(view)
+
+        assert_equal %w[versions], sections.pluck(:name)
+        assert_equal 'Versions', sections.first[:label]
+        rails = sections.first[:rows].detect { |row| row[:name] == 'Rails' }
+        assert_equal({ name: 'Rails', value: Rails.version }, rails)
+      end
     end
   end
 end

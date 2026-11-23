@@ -71,10 +71,15 @@ end
 ## The Status tab
 
 ```ruby
-RedmineKit::Aws::Admin.register_status_section(:lambda_function, partial: 'aws_lambda/function', position: 10)
+RedmineKit::Aws::Admin.register_status_section(:lambda_function, label: :label_aws_lambda_function,
+                                                                 position: 10) do |view, _status|
+  [{ name: view.l(:field_aws_lambda_function_role), value: role || '-', note: 'REDMINE_ROLE' }]
+end
 ```
 
-`register_status_section(name, partial:, position:)` adds a section to the Status tab: a view partial, rendered with the local `status` (a `RedmineKit::Aws::Status`), at a position among the tab's own sections (Versions 20, Parameter Store 30). The connection test comes last. `status_sections` returns the sections in order. The tab lists the versions of the family's plugins: `redmine_kit_aws` and the plugins whose ids start with `redmine_kit_aws_` (`RedmineKit::Aws::Status.family?`).
+`register_status_section(name, label:, position:) { |view, status| … }` adds a section of values to the Status tab, at a position among the tab's own sections (Versions 20, Parameter Store 30). The connection test comes last. `label` is the i18n key of its heading. The block gets the view (Redmine's helpers: `l`, `format_object`, `number_with_delimiter`) and the status (a `RedmineKit::Aws::Status`), and returns the rows: hashes with `name`, and optionally `value` and `note`, as [Values](#values) takes them, and `code: true` for a name that is code (a parameter's name). It returns `[]` for "No data to display", or `nil` to leave the section out. Both UIs draw such a section from the same rows: Redmine's page with `aws_admin/values`, the new UI from the tab's JSON ([The new UI](#the-new-ui)). `RedmineKit::Aws::Status#sections(view)` gives the sections in order, with their rows.
+
+`register_status_section(name, partial:, position:)` adds a view partial instead, rendered with the local `status`. Only Redmine's page draws it; the new UI leaves it out. A section takes either a label and a block or a partial (`ArgumentError` otherwise). `status_sections` returns the sections in order. The tab lists the versions of the family's plugins: `redmine_kit_aws` and the plugins whose ids start with `redmine_kit_aws_` (`RedmineKit::Aws::Status.family?`).
 
 ## Values
 
@@ -87,6 +92,22 @@ RedmineKit::Aws::Admin.register_status_section(:lambda_function, partial: 'aws_l
 ```
 
 `aws_admin/values` shows values that are not edited (versions, states, what a check found) the way Administration › Information does ([Redmine Design Guide: Information](https://redmine-kit.github.io/design-guide/information.html)): a `table.list.values` without a header row, followed by a `<br />`. Each row is a hash: `name` (the `td.name`), and optionally `value` (a `td.value`), `note` (an `em.info` under the value, such as the environment variable or the setting the value comes from) and `ok` (`true` or `false`: a `td.tick` with Redmine's icon, and the row's class `ok` or `failed`). `css` adds classes to the table (the connection test uses `checks`). The partial adds its stylesheet (`assets/stylesheets/aws_values.css`) to the page's `header_tags` once, however many tables the page has: the names stay on one line, and a long value (such as an image URI with its digest) wraps anywhere instead of squeezing them. Every Redmine Kit AWS plugin shows read-only values with it, on the Status tab and on its own tabs.
+
+## The new UI
+
+With [Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) installed, the AWS page is drawn by the new UI ([admin.md](admin.md#in-the-new-ui)), as an Administration page of several plugins (redmine_kit_ui's [Kit-aware plugins](https://github.com/redmine-kit/redmine_kit_ui/blob/main/docs/plugins-kit.md#an-administration-page-of-several-plugins)). This plugin's manifest (`config/kit_ui.yml`) gives the admin menu's item `aws` its icon and declares the Status tab:
+
+```yaml
+menus:
+  admin_menu:
+    aws: { icon: server }
+screens:
+  - { path: /admin/aws/status, component: AwsStatus, layout: admin, menu_item: aws, title: label_aws, tab: label_aws_status, position: 10 }
+```
+
+- **A tab** of another plugin is a screen of that plugin's own manifest, at its tab's route under `admin/aws/`, with `layout: admin`, `menu_item: aws`, `title: label_aws`, its tab's label as `tab` and the position of its `register_tab` as `position`. The new UI draws the page's card, the header "AWS" and one strip of the tabs of every plugin; the plugin's component draws the tab's content, from the JSON of the tab's controller (the same actions as Redmine's page, behind `require_admin`).
+- **A section of the Status tab** is a section of values (`register_status_section` with a label and a block): the tab's JSON gives its rows, and `AwsStatus` draws them. A plugin needs no code of the new UI for it.
+- **The tab's JSON**, for the browser's session (kit requests): `GET /admin/aws/status.json` gives `{ sections: [{ name, label, rows }] }`, the sections of values only; `POST /admin/aws/status/check.json` runs the checks and gives `{ results: [{ name, ok, value, note }] }` (the check's name, whether it passed, what it returned or the class of its error, the time it took as "12 ms"). Both are behind `require_admin`.
 
 ## AWS clients
 
