@@ -9,7 +9,7 @@ module RedmineKit
       Tab = Struct.new(:name, :label, :url, :position, keyword_init: true)
       Check = Struct.new(:name, :label, :run, keyword_init: true)
       Result = Struct.new(:name, :label, :ok, :detail, :milliseconds, keyword_init: true)
-      Section = Struct.new(:name, :label, :rows, :partial, :position, keyword_init: true)
+      Section = Struct.new(:name, :label, :rows, :position, keyword_init: true)
 
       @tabs = {}
       @checks = {}
@@ -36,23 +36,19 @@ module RedmineKit
           @checks.values
         end
 
-        # A part of the Status tab, at a position among the tab's own parts
-        # (Versions 20, Parameter Store 30); the connection test comes last.
-        # Values, which both UIs draw: label (an i18n key: the heading) and a
-        # block that gets the view (Redmine's helpers: l, format_object,
-        # number_with_delimiter) and the status (a RedmineKit::Aws::Status) and
-        # returns the rows (hashes with :name, :value and :note as
-        # aws_admin/values takes them, :code for a name that is code), [] for
-        # "No data to display", or nil to leave the section out. Or a view
-        # partial (partial:), rendered with the local status, which only
-        # Redmine's own page draws.
-        def register_status_section(name, position:, label: nil, partial: nil, &rows)
-          unless partial ? label.nil? && rows.nil? : label && rows
-            raise ArgumentError, 'a status section takes a label and a block, or a partial'
-          end
+        # A section of values of the Status tab, which both UIs draw from the
+        # same rows, at a position among the tab's own sections (Versions 20,
+        # Parameter Store 30); the connection test comes last. label: an i18n
+        # key (the heading). The block gets the view (Redmine's helpers: l,
+        # format_object, number_with_delimiter) and the status (a
+        # RedmineKit::Aws::Status) and returns the rows (hashes with :name,
+        # :value and :note as aws_admin/values takes them, :code for a name
+        # that is code), [] for "No data to display", or nil to leave the
+        # section out.
+        def register_status_section(name, label:, position:, &rows)
+          raise ArgumentError, 'a status section takes a block that returns its rows' unless rows
 
-          @status_sections[name.to_s] = Section.new(name: name.to_s, label: label, rows: rows, partial: partial,
-                                                    position: position)
+          @status_sections[name.to_s] = Section.new(name: name.to_s, label: label, rows: rows, position: position)
         end
 
         def status_sections

@@ -11,8 +11,7 @@ class AwsStatusController < ApplicationController
     @status = RedmineKit::Aws::Status.new
     respond_to do |format|
       format.html
-      # the sections of values; a section of a partial is Redmine's page's only
-      format.json { render json: { sections: @status.sections(view_context).select { |section| section[:rows] } } }
+      format.json { render json: { sections: @status.sections(view_context) } }
     end
   end
 

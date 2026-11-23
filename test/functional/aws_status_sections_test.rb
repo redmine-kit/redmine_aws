@@ -3,7 +3,7 @@
 require_relative '../test_helper'
 
 # The sections the plugins register on the Status tab (register_status_section),
-# on Redmine's page: values (a label and rows) and partials, in their order.
+# on Redmine's page: values (a label and rows), in their order.
 class AwsStatusSectionsTest < Redmine::ControllerTest
   tests AwsStatusController
 
@@ -11,8 +11,6 @@ class AwsStatusSectionsTest < Redmine::ControllerTest
 
   def setup
     @request.session[:user_id] = 1 # admin
-    # the views of test/fixtures/views: a partial section
-    @controller.prepend_view_path(File.expand_path('../fixtures/views', __dir__))
     register
   end
 
@@ -24,7 +22,7 @@ class AwsStatusSectionsTest < Redmine::ControllerTest
     get :index
 
     assert_response :success
-    assert_equal ['Status', 'Versions', 'Partial RedmineKit::Aws::Status', 'Failed', 'Connection test'],
+    assert_equal ['Status', 'Versions', 'OK', 'Failed', 'Connection test'],
                  css_select('#content h3').map(&:text)
   end
 
@@ -43,14 +41,14 @@ class AwsStatusSectionsTest < Redmine::ControllerTest
 
   private
 
-  # A section of values before Versions, one of a partial after Parameter Store,
-  # one without rows and one left out (its block returns nil).
+  # A section before Versions, one after Parameter Store, one without rows and
+  # one left out (its block returns nil).
   def register
     admin = RedmineKit::Aws::Admin
     admin.register_status_section(:early, label: :label_aws_status, position: 5) do |view, _status|
       [{ name: view.l(:label_aws_ok), value: view.format_object(true), note: 'REDMINE_ROLE' }]
     end
-    admin.register_status_section(:late, partial: 'aws_test/partial', position: 40)
+    admin.register_status_section(:late, label: :label_aws_ok, position: 40) { [{ name: 'Late', value: 'X' }] }
     admin.register_status_section(:empty, label: :label_aws_failed, position: 50) { [] }
     admin.register_status_section(:hidden, label: :label_aws_failed, position: 60) { nil }
   end

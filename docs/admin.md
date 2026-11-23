@@ -72,7 +72,7 @@ With [Redmine Kit UI](https://github.com/redmine-kit/redmine_kit_ui) installed, 
 | Connection test | "Test" in the section's heading runs the checks (`POST /admin/aws/status/check.json`); each check is a row with its name, what it returned or the class of its error under it, the time it took and its state (an icon named "OK" or "Failed") |
 | While loading | The Versions section's first rows and the connection test; the other rows and sections come with the data |
 
-The tab reads `GET /admin/aws/status.json` (the sections of values: each section's name, heading and rows) with the browser's session. The values are formatted on the server with Redmine's helpers, the same as on Redmine's page. A section that a plugin registers as a view partial is drawn on Redmine's page only.
+The tab reads `GET /admin/aws/status.json` (the sections of values: each section's name, heading and rows) with the browser's session. The values are formatted on the server with Redmine's helpers, the same as on Redmine's page.
 
 ## Permissions
 

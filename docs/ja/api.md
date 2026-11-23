@@ -87,7 +87,7 @@ end
 
 `register_status_section(name, label:, position:) { |view, status| … }` は、ステータスのタブに値の項目を、タブ自身の項目 (バージョンは 20、Parameter Store は 30) の間の位置に追加します。接続テストは最後です。`label` は見出しの i18n のキーです。ブロックはビュー (Redmine のヘルパー。`l`、`format_object`、`number_with_delimiter`) とステータス (`RedmineKit::Aws::Status`) を受け取り、行を返します。行は、`name` と、必要に応じて `value` と `note` を持つハッシュで ([値の表示](#values) と同じ)、名前がコード (パラメータの名前) なら `code: true` を持ちます。「表示するデータがありません」には `[]` を、項目を表示しないときは `nil` を返します。この項目は、同じ行から両方の UI が描画します。Redmine の画面は `aws_admin/values` で、新しい UI はタブの JSON から描画します ([新しい UI](#the-new-ui))。`RedmineKit::Aws::Status#sections(view)` は、項目を行といっしょに順序どおりに返します。
 
-`register_status_section(name, partial:, position:)` は、代わりにビューのパーシャルを追加し、ローカル変数 `status` を渡して表示します。表示するのは Redmine の画面だけで、新しい UI には表示しません。項目はラベルとブロック、またはパーシャルのどちらかを取ります (それ以外は `ArgumentError`)。`status_sections` は、項目を順序どおりに返します。タブは、ファミリーのプラグインのバージョンを表示します。`redmine_kit_aws` と、ID が `redmine_kit_aws_` で始まるプラグインです (`RedmineKit::Aws::Status.family?`)。
+ブロックのない項目は `ArgumentError` を発生させます。`status_sections` は、項目を順序どおりに返します。タブは、ファミリーのプラグインのバージョンを表示します。`redmine_kit_aws` と、ID が `redmine_kit_aws_` で始まるプラグインです (`RedmineKit::Aws::Status.family?`)。
 
 <a id="values"></a>
 

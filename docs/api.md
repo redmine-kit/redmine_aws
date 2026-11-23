@@ -79,7 +79,7 @@ end
 
 `register_status_section(name, label:, position:) { |view, status| … }` adds a section of values to the Status tab, at a position among the tab's own sections (Versions 20, Parameter Store 30). The connection test comes last. `label` is the i18n key of its heading. The block gets the view (Redmine's helpers: `l`, `format_object`, `number_with_delimiter`) and the status (a `RedmineKit::Aws::Status`), and returns the rows: hashes with `name`, and optionally `value` and `note`, as [Values](#values) takes them, and `code: true` for a name that is code (a parameter's name). It returns `[]` for "No data to display", or `nil` to leave the section out. Both UIs draw such a section from the same rows: Redmine's page with `aws_admin/values`, the new UI from the tab's JSON ([The new UI](#the-new-ui)). `RedmineKit::Aws::Status#sections(view)` gives the sections in order, with their rows.
 
-`register_status_section(name, partial:, position:)` adds a view partial instead, rendered with the local `status`. Only Redmine's page draws it; the new UI leaves it out. A section takes either a label and a block or a partial (`ArgumentError` otherwise). `status_sections` returns the sections in order. The tab lists the versions of the family's plugins: `redmine_kit_aws` and the plugins whose ids start with `redmine_kit_aws_` (`RedmineKit::Aws::Status.family?`).
+A section without a block raises `ArgumentError`. `status_sections` returns the sections in order. The tab lists the versions of the family's plugins: `redmine_kit_aws` and the plugins whose ids start with `redmine_kit_aws_` (`RedmineKit::Aws::Status.family?`).
 
 ## Values
 

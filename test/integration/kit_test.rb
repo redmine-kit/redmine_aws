@@ -60,12 +60,16 @@ class AwsKitTest < Redmine::IntegrationTest
     assert_not_includes response.body, Rails.application.secret_key_base
   end
 
-  test 'without Redmine Kit AWS SSM there is no Parameter Store; a partial section is left out' do
-    RedmineKit::Aws::Admin.register_status_section(:classic_only, partial: 'aws_test/partial', position: 5)
+  test 'without Redmine Kit AWS SSM there is no Parameter Store; a registered section in its place' do
+    RedmineKit::Aws::Admin.register_status_section(:early, label: :label_aws_status, position: 5) do |view, _status|
+      [{ name: view.l(:label_aws_ok), value: view.format_object(true), note: 'REDMINE_ROLE' }]
+    end
     get '/admin/aws/status.json', headers: kit_session('admin', 'admin')
-    assert_equal %w[versions], response.parsed_body['sections'].pluck('name')
+    sections = response.parsed_body['sections']
+    assert_equal %w[early versions], sections.pluck('name')
+    assert_equal [{ 'name' => 'OK', 'value' => 'Yes', 'note' => 'REDMINE_ROLE' }], sections.first['rows']
   ensure
-    RedmineKit::Aws::Admin.instance_variable_get(:@status_sections).delete('classic_only')
+    RedmineKit::Aws::Admin.instance_variable_get(:@status_sections).delete('early')
   end
 
   test "the connection test: each check's name, state, detail and time, formatted by Redmine's helpers" do

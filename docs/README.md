@@ -37,7 +37,7 @@ The plugin calls no AWS API itself, so it needs no AWS SDK gem; each plugin that
 | Target | What is checked |
 | --- | --- |
 | The AWS menu | One menu item, also when more tabs are registered; it opens the first tab; only administrators |
-| Status | The versions; the names of the variables that Redmine Kit AWS SSM set; the sections that plugins add, in order (values, a partial, no rows, left out); no secrets on the page; the database check and a failing check; only administrators |
+| Status | The versions; the names of the variables that Redmine Kit AWS SSM set; the sections that plugins add, in order (no rows, left out); no secrets on the page; the database check and a failing check; only administrators |
 | Status in the new UI | With Redmine Kit UI: the manifest it takes and the screen listed to administrators only; the tab's JSON (the sections, the names only, the connection test, a failing check's class of error) for a kit request with the CSRF token, refused without it, to other users and without the kit header. The module's components (`frontend/`, `npm test`): the sections in order, "No data to display", Test and its results, the error state and the skeleton |
 | AWS clients | The region from `AWS_REGION` and `AWS_DEFAULT_REGION`; the order of the options; the test helpers set and restore the options and the environment |
 | Code loading | In new processes, with a plugin whose files are named as the plugins name theirs (`ses.rb` for `RedmineKit::Aws::Ses`, …): `zeitwerk:check` passes and the modules load, also with the `RedmineKit::Aws` namespace defined before Rails as a boot file of another plugin does |

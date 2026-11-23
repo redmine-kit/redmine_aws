@@ -1,11 +1,7 @@
 <%= render partial: 'aws_admin/tabs', locals: { selected: 'status' } %>
 
 <% @status.sections(self).each do |section| %>
-<% if section[:partial] %>
-<%= render partial: section[:partial], locals: { status: @status } %>
-<% else %>
 <%= render partial: 'aws_status/section', locals: { section: section } %>
-<% end %>
 <% end %>
 
 <h3><%= l(:label_aws_connection_check) %></h3>

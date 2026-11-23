@@ -29,15 +29,10 @@ module RedmineKit
         Redmine::Plugin.unregister(:redmine_kit_awsome)
       end
 
-      # A section is values (a label and its rows) or a partial, never both or neither.
-      def test_a_status_section_takes_a_label_and_rows_or_a_partial
-        rows = -> { [] }
-        [{ label: :label_aws_status }, {}, { partial: 'p', label: :label_aws_status }].each do |options|
-          assert_raises(ArgumentError, options.inspect) do
-            Admin.register_status_section(:wrong, position: 1, **options)
-          end
-        end
-        assert_raises(ArgumentError) { Admin.register_status_section(:wrong, position: 1, partial: 'p', &rows) }
+      # A section is values: a label and a block that returns its rows.
+      def test_a_status_section_takes_a_label_and_a_block
+        assert_raises(ArgumentError) { Admin.register_status_section(:wrong, label: :label_aws_status, position: 1) }
+        assert_raises(ArgumentError) { Admin.register_status_section(:wrong, position: 1) { [] } }
         assert_not Admin.status_sections.map(&:name).include?('wrong')
       end
 
