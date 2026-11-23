@@ -11,7 +11,6 @@ import {
   RequestErrorState,
   Skeleton,
   SkeletonRegion,
-  StatusValue,
   type AttrItem,
 } from '@redmine-kit/ui';
 import { useApiErrorTexts, useKitMutation, useKitQuery, useT } from '@redmine-kit/plugin';
@@ -68,9 +67,20 @@ function ValuesSection({ section, line }: { section: AwsSection; line: boolean }
   );
 }
 
-/** A row as an AttrGrid item: the value, with its note muted after it (the classic page's em.info). */
+/**
+ * A row as an AttrGrid item: the value with its note muted under it, as Redmine's em.info under a value (REDMINE_ROLE, the
+ * variable a value comes from); a long value (an image URI with its digest) wraps anywhere rather than being cut.
+ */
 function valueItem(row: AwsRow): AttrItem {
-  return { label: row.name, value: row.note ? <StatusValue detail={row.note}>{row.value ?? ''}</StatusValue> : (row.value ?? undefined) };
+  return {
+    label: row.name,
+    value: (
+      <span className="flex min-w-0 flex-col wrap-anywhere">
+        <span>{row.value ?? ''}</span>
+        {row.note && <span className="text-meta text-text-muted">{row.note}</span>}
+      </span>
+    ),
+  };
 }
 
 /**

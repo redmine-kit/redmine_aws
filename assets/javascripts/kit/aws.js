@@ -1,6 +1,6 @@
 // Redmine Kit AWS: the plugin's module for the new UI, built from frontend/src by `npm run build` (frontend/vite.config.js).
 // Edit the source, not this file. React, @redmine-kit/ui and @redmine-kit/plugin come from the app (the shell's import map).
-import { AttrGrid, AttrGridSkeleton, Button, CardBody, CardSection, EmptyState, Icon, ListRow, Notice, RequestErrorState, Skeleton, SkeletonRegion, StatusValue } from "@redmine-kit/ui";
+import { AttrGrid, AttrGridSkeleton, Button, CardBody, CardSection, EmptyState, Icon, ListRow, Notice, RequestErrorState, Skeleton, SkeletonRegion } from "@redmine-kit/ui";
 import { useApiErrorTexts, useKitMutation, useKitQuery, useT } from "@redmine-kit/plugin";
 import { jsx, jsxs } from "react/jsx-runtime";
 // src/api.ts
@@ -48,14 +48,20 @@ function ValuesSection({ section, line }) {
 		}, row.name))
 	});
 }
-/** A row as an AttrGrid item: the value, with its note muted after it (the classic page's em.info). */
+/**
+* A row as an AttrGrid item: the value with its note muted under it, as Redmine's em.info under a value (REDMINE_ROLE, the
+* variable a value comes from); a long value (an image URI with its digest) wraps anywhere rather than being cut.
+*/
 function valueItem(row) {
 	return {
 		label: row.name,
-		value: row.note ? /* @__PURE__ */ jsx(StatusValue, {
-			detail: row.note,
-			children: row.value ?? ""
-		}) : row.value ?? void 0
+		value: /* @__PURE__ */ jsxs("span", {
+			className: "flex min-w-0 flex-col wrap-anywhere",
+			children: [/* @__PURE__ */ jsx("span", { children: row.value ?? "" }), row.note && /* @__PURE__ */ jsx("span", {
+				className: "text-meta text-text-muted",
+				children: row.note
+			})]
+		})
 	};
 }
 /**
