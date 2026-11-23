@@ -30,6 +30,10 @@
     overflow-wrap: anywhere;
   }
 
+  .whitespace-normal {
+    white-space: normal;
+  }
+
   .text-accent {
     color: var(--rk-accent);
   }

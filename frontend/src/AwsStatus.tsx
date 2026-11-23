@@ -75,7 +75,7 @@ function valueItem(row: AwsRow): AttrItem {
   return {
     label: row.name,
     value: (
-      <span className="flex min-w-0 flex-col wrap-anywhere">
+      <span className="flex min-w-0 flex-col whitespace-normal wrap-anywhere">
         <span>{row.value ?? ''}</span>
         {row.note && <span className="text-meta text-text-muted">{row.note}</span>}
       </span>

@@ -56,7 +56,7 @@ function valueItem(row) {
 	return {
 		label: row.name,
 		value: /* @__PURE__ */ jsxs("span", {
-			className: "flex min-w-0 flex-col wrap-anywhere",
+			className: "flex min-w-0 flex-col whitespace-normal wrap-anywhere",
 			children: [/* @__PURE__ */ jsx("span", { children: row.value ?? "" }), row.note && /* @__PURE__ */ jsx("span", {
 				className: "text-meta text-text-muted",
 				children: row.note
