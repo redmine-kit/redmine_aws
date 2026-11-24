@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   # The Ruby versions of Redmine 7.0 (its Gemfile: ruby '>= 3.2.0', '< 4.1.0').
   spec.required_ruby_version = ['>= 3.2', '< 4.1']
   spec.files = Dir['{init.rb,LICENSE}', '{app,assets,boot,config,db,lib,help}/**/*', 'test/support/**/*']
-  spec.require_paths = %w[lib]
+  spec.require_paths = %w[boot lib]
   spec.metadata['github_repo'] = 'ssh://github.com/redmine-kit/redmine_aws'
   # The plugins it requires (config/dependencies.yml): installing the gem installs them.
   YAML.safe_load_file(File.join(__dir__, 'config/dependencies.yml'))['requires'].each do |name, range|

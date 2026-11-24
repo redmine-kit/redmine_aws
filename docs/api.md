@@ -170,13 +170,20 @@ It has `each_language`, `shoot(name, language, selector:)` and `hide_after(selec
 
 Until the plugins' tests install the gem, they take Redmine Kit AWS from a checkout: `../redmine_kit_aws` next to the plugin, or the directory in `REDMINE_KIT_AWS_DIR`. The tests run in the base image that every Redmine Kit plugin's tests share (`test/Dockerfile`), with no image per plugin. `bin/test_image` copies the files that git tracks or would track, of the plugin's checkout and of Redmine Kit AWS's, into a folder mounted at `/src/plugins`, as `redmine_kit_aws_lambda/` and `redmine_kit_aws/`; the image's entrypoint copies them into Redmine's `plugins/`.
 
-When the tests need the plugin as a gem by path (so that Bundler loads `boot/`), `bin/test_image` writes a `PluginGemfile` into the plugin's folder, which Redmine's Gemfile reads with the plugins' Gemfiles. Bundler then needs `redmine_kit_aws` by path too:
+A plugin whose `boot/` file must run before Rails initializes names itself by its path in its own `Gemfile`, which Redmine's Gemfile reads for a checkout in `plugins/`, and Redmine Kit AWS by the path of its checkout next to it, each unless `Gemfile.local` or another plugin's `Gemfile` names it already; the tests use the checkouts this way, as an adopter's `plugins/` does:
 
 ```ruby
-gem 'redmine_kit_aws', path: '/redmine/plugins/redmine_kit_aws', require: false
-gem 'redmine_kit_aws_lambda', path: '/redmine/plugins/redmine_kit_aws_lambda'
+# Gemfile of redmine_kit_aws_sqs
+unless dependencies.any? { |dependency| dependency.name == 'redmine_kit_aws' }
+  gem 'redmine_kit_aws', path: File.expand_path('../redmine_kit_aws', __dir__), require: false
+end
+unless dependencies.any? { |dependency| dependency.name == 'redmine_kit_aws_sqs' }
+  gem 'redmine_kit_aws_sqs', path: __dir__
+end
 ```
+
+Installed as gems, every Redmine Kit AWS plugin hands its folder to Redmine's plugin loader from its `boot/` file (`boot/redmine_kit_aws.rb` for this plugin, which the others' boot files require), as redmine_kit_ui's template does.
 
 CI checks out `redmine-kit/redmine_aws` into `redmine_kit_aws/` and sets `REDMINE_KIT_AWS_DIR`. [Redmine Kit AWS Lambda](https://github.com/redmine-kit/redmine_aws_lambda) does all of this.
 
-The plugins' CI also runs two jobs around the gem. `test (redmine_kit_aws release)` runs the tests with the newest `v0.*` tag of this plugin, the source of the published gem, as well as with its main; until the first release it only notes that there is none. `gem` runs `bin/test-gem`, which builds the plugin's gem and this plugin's, installs them into Redmine as the plugin's setup page says, links them into `plugins/` and boots Redmine with every file loaded (`zeitwerk:check`, and the production environment), so that a gem that misses a file fails before a version tag publishes it. This plugin's own `bin/test-gem` boots it both as the setup page installs it (not required by Bundler) and required early by Bundler.
+The plugins' CI also runs two jobs around the gem. `test (redmine_kit_aws release)` runs the tests with the newest `v0.*` tag of this plugin, the source of the published gem, as well as with its main; until the first release it only notes that there is none. `gem` runs `bin/test-gem`, which builds the plugin's gem and this plugin's, installs them into Redmine as the plugin's setup page says, without the checkouts in `plugins/`, and boots Redmine with every file loaded (`zeitwerk:check`, and the production environment), then again with the checkouts back in `plugins/`, so that a gem that misses a file fails before a version tag publishes it.

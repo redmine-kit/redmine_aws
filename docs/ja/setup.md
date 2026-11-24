@@ -29,21 +29,44 @@ Redmine Kit AWS を使う Redmine に必要なもの (インストール、設�
 
 ## インストール
 
-1. プラグインを Redmine 7.0 の `plugins/redmine_kit_aws` に置きます。下の gem か、このリポジトリのチェックアウトです。チェックアウトのディレクトリ名は、リポジトリ名ではなく、プラグインの ID にします (`git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws`)。プラグイン自身が使う gem はないので、このプラグインのための `Gemfile.local` への追加は不要です。チェックアウトの場合、`boot/` のファイルを持つプラグイン (Redmine Kit AWS Lambda、SES、SQS、SSM) はパスで `Gemfile.local` に追加し、そのときは `redmine_kit_aws` もパスで追加します。いくつのプラグインを追加しても、`redmine_kit_aws` の行は 1 つだけです (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`。書く行は各プラグインの導入のページにあります)。
-2. このプラグインを使う Redmine Kit AWS のプラグインを、このプラグインと同じ `plugins/` にインストールします。順序は問いません。`redmine_kit_aws` がないときは、Redmine が起動時に停止し、その名前を示します ([必須プラグイン](#required-plugins))。
-3. migration は不要です。
+1. プラグインを gem としてインストールするか ([gem](#gem))、Redmine の `plugins/` にチェックアウトを置きます ([gem を使わないとき](#without-the-gem))。ほかの Redmine Kit AWS のプラグインの gem はこの gem に依存するので、どれかをインストールすると、このプラグインもインストールされます。チェックアウトでは、それらと同じ `plugins/` に置きます。順序は問いません。`redmine_kit_aws` がないときは、Redmine が起動時に停止し、その名前を示します ([必須プラグイン](#required-plugins))。
+2. Redmine のフォルダーで `bundle install` を実行します。
+3. マイグレーションは不要です。
+4. Redmine を再起動します。
 
 <a id="gem"></a>
 
 ### gem
 
-`bin/release` が、各バージョンのプラグインを gem として GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`。[リリース](#releasing)) に公開します。gem には、実行に必要なファイル (`init.rb`、`boot/`、`lib/`、`app/`、`assets/`、`config/`、`help/`、`LICENSE`) と `test/support/` が入ります。プラグインの `Gemfile` は入れません。ほかの Redmine Kit AWS のプラグインの gem がこの gem に依存するので、Bundler がいっしょにインストールします。Redmine は `plugins/` のプラグインだけを読み込むので、インストールした gem をそこにリンクします。
+**gem として** (推奨): Redmine の `Gemfile.local` に、GitHub Packages にある Redmine Kit のレジストリ (`https://rubygems.pkg.github.com/redmine-kit`。`bin/release` が公開します: [リリース](#releasing)) のブロックで追加します。このプラグインが必要とするプラグイン ([必須プラグイン](#required-plugins)) も Bundler がそこから取得し、これらの gem を rubygems.org から取得することはありません。レジストリには、公開のパッケージでも `read:packages` を持つ GitHub のトークンが必要です。Bundler には環境変数 `BUNDLE_RUBYGEMS__PKG__GITHUB__COM` (`<user>:<token>`) で渡し、リポジトリのファイルには書きません。
 
-```sh
-ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
+```ruby
+# Redmine の Gemfile.local
+source 'https://rubygems.pkg.github.com/redmine-kit' do
+  gem 'redmine_kit_aws'
+end
 ```
 
-GitHub Packages からインストールするには、公開のパッケージでも、`read:packages` の権限を持つ GitHub のトークンが必要です (`Gemfile.local` に書く行は、各プラグインの導入のページにあります)。Bundler は、このリポジトリからもプラグインをインストールできます。この場合、トークンは不要です (`gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false`)。
+**リポジトリから** (開発用): Bundler は gem を git から取得します。Bundler は gem が必要とするプラグインを git からは取得しないので、その行も追加します。
+
+```ruby
+# Redmine の Gemfile.local
+gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', branch: 'main'
+```
+
+Bundler が `boot/redmine_kit_aws.rb` を読み込み、gem のフォルダーを Redmine のプラグインローダーに渡します。Redmine は `plugins/` のプラグインと同じく、gem の `init.rb` を実行し、アセット、文字列、ビュー、マイグレーションを使い、`lib/` と `app/` を Rails のコードローダーに追加し、ルートを追加するので、`plugins/` へのリンクは不要です。`plugins/` に同じ id のフォルダーがあれば、そちらが優先されます。 gem には実行に必要なファイルが入り、プラグインの `Gemfile` は入りません。
+
+<a id="without-the-gem"></a>
+
+### gem を使わないとき
+
+リポジトリを Redmine の `plugins/` にクローンします。フォルダー名は、リポジトリ名ではなく、プラグインの ID にします。
+
+```sh
+git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws
+```
+
+Rails の起動前に読み込むものがないので、`Gemfile.local` に行を追加する必要はありません。Redmine の `Gemfile` がプラグインの `Gemfile` を読み込み、使う gem を追加します。
 
 <a id="configuration"></a>
 
@@ -87,13 +110,16 @@ GitHub Packages からインストールするには、公開のパッケージ�
 
 `COVERAGE=1` を付けると、プラグインのテストは、プラグイン自身のファイルのカバレッジ (SimpleCov。Cobertura の XML の `coverage/coverage.xml`) も出力し、1 プロセスで実行します。CI は Ruby 4.0 でこれを有効にし、レポートを `plugin` フラグで [Codecov](https://codecov.io/gh/redmine-kit/redmine_aws) に送信します。送信の認証は OIDC (`id-token: write`) なので、トークンをシークレットに保存しません。Codecov のステータスは参考情報で、コミットや Pull Request を失敗にしません (`codecov.yml`)。
 
-`bin/test-gem` は gem を確認します。チェックアウトから gem をビルドし、[gem](#gem) のとおりにインストールして `plugins/` にリンクし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。`bin/release` もこれを実行するので、gem にないファイルがあれば、ほかのプラグインや Serverless がインストールする前に失敗します。
+`bin/test-gem` は、組織のプラグインのテンプレートと同じく gem を確認します。チェックアウトからプラグインと Redmine Kit AWS の gem をビルドし、チェックアウトを `plugins/` から外して [gem](#gem) のとおりにインストールし、すべてのファイルを読み込んで Redmine を起動します (`zeitwerk:check` と、起動時にすべてを読み込む production 環境)。各プラグインが gem のフォルダーから、boot のファイル、コード、ルート、マイグレーション、アセットとともに読み込まれることを確認し、チェックアウトを `plugins/` に戻して、チェックアウトが優先されることも確認します。CI と `bin/release` もこれを実行するので、gem にないファイルがあれば、ほかのプラグインや Serverless がインストールする前に失敗します。
+
+`bin/test-family` は、Redmine Kit AWS のプラグインをまとめてチェックアウトとして `plugins/` に置き (このプラグインと、隣にあるほかのプラグイン。Gemfile.local の行が必須の DSQL と SSM を除く)、[gem を使わないとき](#without-the-gem) のとおり Gemfile.local に行を書かずに Redmine を起動します。マイグレーションし、`zeitwerk:check` と production 環境で起動して、すべてのプラグインが `plugins/` から登録されること、Rails より前に実行する必要がある boot のファイルが実行されたことを確認します。2 つのプラグインが同じ gem を交わらない範囲で指定していると失敗します。
 
 ```sh
 bin/test            # redmine_kit_ui あり・なしのプラグインのテストと、関係する Redmine のテスト
 bin/test --redmine  # Redmine のすべてのテストも実行する
 COVERAGE=1 bin/test # カバレッジを coverage/coverage.xml に出力する
-bin/test-gem        # gem をビルド・インストールし、plugins/ にリンクして起動する
+bin/test-gem        # gem をビルド・インストールし、gem から、次に plugins/ から起動する
+bin/test-family     # Redmine Kit AWS のプラグインを gem なしでまとめて plugins/ に置いて起動する
 bin/lint            # RuboCop
 bin/screenshots     # admin.md のスクリーンショット
 bin/services --down # PostgreSQL (と Chromium) を停止する

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# The Redmine Kit AWS plugins together as checkouts in Redmine 7.0.3's plugins/
+# (docs/setup.md#without-the-gem), in Apple container when it runs, else in
+# Docker (CONTAINER_CLI=container|docker chooses): this checkout and those of
+# the other Redmine Kit AWS plugins next to it (but DSQL and SSM), with
+# no line in Gemfile.local, as an adopter installs them. Bundler installs the
+# gems their Gemfiles name (each plugin with a boot/ file names itself by its
+# path, and Redmine Kit AWS once), then Redmine migrates, boots through
+# zeitwerk:check and in the production environment, which loads every file at
+# start-up, and checks that every plugin is registered from plugins/ and that
+# the boot files ran. It fails when two plugins name one gem with ranges that
+# don't meet, or when a plugin needs something before Rails that its Gemfile
+# doesn't load.
+#   bin/test-family
+#   TEST_RUBY=3.2 bin/test-family   # on Ruby 3.2 (default 4.0)
+# Commands that run inside the container are in single quotes on purpose.
+# shellcheck disable=SC2016
+set -euo pipefail
+cd "$(dirname "$0")/.."
+source bin/container_cli
+source bin/test_slot
+name=redmine-kit-aws-test
+stop_services_at_exit "$name"
+bin/services >/dev/null
+AWS_FAMILY=1 source bin/test_image
+if [[ "$cli" == docker ]]; then
+  net=(--network redmine-kit-aws-test_default)
+else
+  net=(--network "$kit_test_network" -m 4G
+    -e TEST_DATABASE_HOST="$(container_address redmine-kit-aws-test-postgres)")
+fi
+check='
+  plugins = Redmine::Plugin.all.map(&:id).map(&:to_s).select { |id| id.start_with?("redmine_kit_aws") }
+  expected = Dir.children("plugins").select { |id| id.start_with?("redmine_kit_aws") }
+  abort "registered #{plugins.sort}, not #{expected.sort}" unless plugins.sort == expected.sort
+  plugins.each do |id|
+    dir = Redmine::Plugin.find(id).directory.to_s
+    abort "#{id} is not from plugins/ (#{dir})" unless dir.end_with?("/plugins/#{id}")
+    boot = File.join(dir, "boot/#{id}.rb")
+    # a boot file that does something before Rails ran (its plugin names itself in its Gemfile)
+    if File.file?(boot) && File.read(boot).include?("module Boot")
+      abort "#{id}: boot/#{id}.rb not loaded" unless $LOADED_FEATURES.any? { |f| f.end_with?("/boot/#{id}.rb") }
+    end
+  end
+  abort "not eager loaded" unless Rails.application.config.eager_load
+  puts "the Redmine Kit AWS plugins from plugins/: #{plugins.sort.join(", ")}"'
+# A database of this run's own, dropped at the end.
+"$cli" run --rm "${run_opts[@]}" "${net[@]}" -e TEST_DATABASE="redmine_test_$$" -e CHECK="$check" "$image" sh -ec '
+  # without redmine_kit_ui, which bin/test_image adds for bin/test
+  mv plugins/redmine_kit_ui /tmp/ && mkdir plugins/kit_ui_gems && cp /tmp/redmine_kit_ui/Gemfile plugins/kit_ui_gems/
+  bundle install --prefer-local --quiet
+  printf "%s\n" "production:" "  adapter: postgresql" "  host: ${TEST_DATABASE_HOST:-postgres}" "  database: $TEST_DATABASE" \
+    "  username: postgres" >> config/database.yml
+  rm -f db/schema.rb
+  bin/rails db:drop db:create db:migrate redmine:plugins:migrate >/dev/null
+  bin/rails zeitwerk:check
+  RAILS_ENV=production SECRET_KEY_BASE=test-family bin/rails runner "$CHECK"
+  bin/rails db:drop >/dev/null'

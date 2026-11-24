@@ -40,6 +40,19 @@ kit_ui_ref=${REDMINE_KIT_UI_REF:-HEAD}
 mkdir -p "$test_context/plugins/redmine_kit_ui"
 git -C "$kit_ui" archive "$kit_ui_ref" init.rb Gemfile app assets config db lib test |
   tar -xf - -C "$test_context/plugins/redmine_kit_ui"
+# With AWS_FAMILY set (bin/test-family), the checkouts of the other Redmine Kit
+# AWS plugins next to this one, in plugins/ together, as an adopter's plugins/
+# has them; but Redmine Kit AWS DSQL, which replaces the database adapter, and
+# Redmine Kit AWS SSM, which a line of Gemfile.local installs by design (its
+# docs/setup.md).
+if [[ -n "${AWS_FAMILY:-}" ]]; then
+  for dir in ../redmine_kit_aws_*/; do
+    dir=${dir%/}
+    case "$(basename "$dir")" in redmine_kit_aws_dsql | redmine_kit_aws_ssm) continue ;; esac
+    [[ -L "$dir" || ! -f "$dir/init.rb" ]] && continue
+    copy_plugin "$dir" "$test_context/plugins/$(basename "$dir")"
+  done
+fi
 # The tests' gems: aws-sdk-core for test/support/, which the AWS plugins'
 # tests load with their SDK gems. Redmine's Gemfile reads
 # plugins/*/PluginGemfile with the plugins' Gemfiles.

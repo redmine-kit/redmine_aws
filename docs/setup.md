@@ -21,19 +21,40 @@ None.
 
 ## Installation
 
-1. Get the plugin into `plugins/redmine_kit_aws` of Redmine 7.0: the gem below, or a checkout of this repository in a folder named after the plugin's id, which differs from the repository's name (`git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws`). The plugin has no gems of its own, so it needs no line in `Gemfile.local` for itself. With checkouts, the plugins that have a `boot/` file (Redmine Kit AWS Lambda, SES, SQS and SSM) are added to `Gemfile.local` by path, and then `redmine_kit_aws` is added by path too, once however many plugins are added (`gem 'redmine_kit_aws', path: 'plugins/redmine_kit_aws', require: false`; the setup of each plugin shows the lines).
-2. Install the Redmine Kit AWS plugins that use it in `plugins/`, next to it. The order doesn't matter: at boot, Redmine stops and names `redmine_kit_aws` when it is missing ([Required plugins](#required-plugins)).
+1. Install the plugin as a gem ([Gem](#gem)), or put a checkout in Redmine's `plugins/` ([Without the gem](#without-the-gem)). The gems of the other Redmine Kit AWS plugins depend on it, so installing one of them installs this one too; with checkouts, it goes next to them. The order doesn't matter: at boot, Redmine stops and names `redmine_kit_aws` when it is missing ([Required plugins](#required-plugins)).
+2. Run `bundle install` in Redmine's folder.
 3. No migration is needed.
+4. Restart Redmine.
 
 ### Gem
 
-`bin/release` publishes each version of the plugin as a gem to GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`, [Releasing](#releasing)). The gem holds the run-time files (`init.rb`, `boot/`, `lib/`, `app/`, `assets/`, `config/`, `help/`, `LICENSE`) and `test/support/`; the plugin's `Gemfile` is not in it. The gems of the other Redmine Kit AWS plugins depend on it, so Bundler installs it with them. Redmine loads plugins only from `plugins/`, so the installed gem is linked there:
+**As a gem** (first choice): add it to Redmine's `Gemfile.local`, in a block of Redmine Kit's registry on GitHub Packages (`https://rubygems.pkg.github.com/redmine-kit`, where `bin/release` publishes it: [Releasing](#releasing)). Bundler takes the plugins it requires from there too ([Required plugins](#required-plugins)), and never takes these gems from rubygems.org. The registry needs a GitHub token with `read:packages`, even for a public package, given to Bundler in the environment variable `BUNDLE_RUBYGEMS__PKG__GITHUB__COM` (`<user>:<token>`), never in a file of a repository.
 
-```sh
-ln -s "$(bundle info --path redmine_kit_aws)" plugins/redmine_kit_aws
+```ruby
+# Redmine's Gemfile.local
+source 'https://rubygems.pkg.github.com/redmine-kit' do
+  gem 'redmine_kit_aws'
+end
 ```
 
-Installing from GitHub Packages needs a GitHub token with `read:packages`, even for a public package (the setup of each plugin shows the `Gemfile.local` lines). Bundler can also install the plugin from this repository, which needs no token: `gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', tag: 'v0.1.0', require: false`.
+**From the repositories** (for development), Bundler takes the gems from git instead; it doesn't take the plugins a gem requires from git, so their lines come too:
+
+```ruby
+# Redmine's Gemfile.local
+gem 'redmine_kit_aws', git: 'https://github.com/redmine-kit/redmine_aws.git', branch: 'main'
+```
+
+Bundler requires `boot/redmine_kit_aws.rb`, which hands the gem's folder to Redmine's plugin loader: Redmine runs the gem's `init.rb`, serves its assets, strings, views and migrations, adds its `lib/` and `app/` to Rails' code loader and draws its routes, as for a plugin in `plugins/`, so no link in `plugins/` is needed. A folder of the same id in `plugins/` wins over the gem. The gem holds the run-time files; the plugin's `Gemfile` is not in it.
+
+### Without the gem
+
+Clone the repositories into Redmine's `plugins/`, in folders named after the plugins' ids, which differ from the repositories' names:
+
+```sh
+git clone https://github.com/redmine-kit/redmine_aws.git plugins/redmine_kit_aws
+```
+
+Nothing of the plugin has to load before Rails starts, so it needs no line in `Gemfile.local`; Redmine's `Gemfile` loads the plugin's, which adds the gems it uses.
 
 ## Configuration
 
@@ -67,13 +88,16 @@ A run stops the service containers it started (it doesn't remove them) when it e
 
 With `COVERAGE=1`, the plugin's tests also write the coverage of the plugin's own files (SimpleCov, Cobertura XML in `coverage/coverage.xml`) and run in one process. CI sets it on Ruby 4.0 and uploads the report to [Codecov](https://codecov.io/gh/redmine-kit/redmine_aws) with the flag `plugin`. The upload authenticates with OIDC (`id-token: write`), so no token is stored as a secret. Codecov's statuses are informational and never fail a commit or a pull request (`codecov.yml`).
 
-`bin/test-gem` checks the gem: it builds the gem from the checkout, installs it as [Gem](#gem) says, links it into `plugins/` and starts Redmine with every file loaded (`zeitwerk:check`, and the production environment, which loads them at start-up). CI runs it too, so a file missing from the gem fails before the other plugins or Serverless install it.
+`bin/test-gem` checks the gem as the template of the organization's plugins does: it builds the gems of the plugin and of Redmine Kit AWS from the checkouts, takes the checkouts out of `plugins/`, installs the gems as [Gem](#gem) says and starts Redmine with every file loaded (`zeitwerk:check`, and the production environment, which loads them at start-up), checking that each plugin comes from its gem's folder with its boot file, code, routes, migrations and assets; then again with the checkouts back in `plugins/`, which win. CI and `bin/release` run it too, so a file missing from the gem fails before the other plugins or Serverless install it.
+
+`bin/test-family` starts Redmine with the Redmine Kit AWS plugins together as checkouts in `plugins/` (this one and the others next to it, but DSQL and SSM, whose Gemfile.local line is required), with no line in Gemfile.local, as [Without the gem](#without-the-gem) says: it migrates, runs `zeitwerk:check` and the production environment, and checks that every plugin is registered from `plugins/` and that the boot files that must run before Rails did. It fails when two plugins name one gem with ranges that don't meet.
 
 ```sh
 bin/test            # the plugin's tests with and without redmine_kit_ui, and Redmine's tests around them
 bin/test --redmine  # with every Redmine test
 COVERAGE=1 bin/test # with the coverage in coverage/coverage.xml
-bin/test-gem        # the gem: built, installed, linked into plugins/, booted
+bin/test-gem        # the gems: built, installed, booted from the gems, then from plugins/
+bin/test-family     # the Redmine Kit AWS plugins together in plugins/, without the gems
 bin/lint            # RuboCop
 bin/screenshots     # the screenshots of admin.md
 bin/services --down # stops PostgreSQL (and Chromium)

@@ -15,6 +15,10 @@ load File.expand_path('config/dependencies.rb', __dir__)
 require File.expand_path('lib/redmine_kit/aws', __dir__) unless defined?(RedmineKit::Aws::VERSION)
 
 Redmine::Plugin.register :redmine_kit_aws do
+  # This folder, as Redmine's plugin loader found it: plugins/redmine_kit_aws (a checkout
+  # or a link), or the installed gem's folder (boot/redmine_kit_aws.rb). Redmine's
+  # default is plugins/<id>, which a gem doesn't have.
+  directory File.dirname(__FILE__)
   name 'Redmine Kit AWS'
   author 'Redmine Kit'
   description 'The administration menu shared by the Redmine Kit AWS plugins'
