@@ -48,20 +48,12 @@ function ValuesSection({ section, line }) {
 		}, row.name))
 	});
 }
-/**
-* A row as an AttrGrid item: the value with its note muted under it, as Redmine's em.info under a value (REDMINE_ROLE, the
-* variable a value comes from); a long value (an image URI with its digest) wraps anywhere rather than being cut.
-*/
+/** A row as an AttrGrid item: the value with its note (the variable it comes from) under it, as Redmine's em.info. */
 function valueItem(row) {
 	return {
 		label: row.name,
-		value: /* @__PURE__ */ jsxs("span", {
-			className: "flex min-w-0 flex-col whitespace-normal wrap-anywhere",
-			children: [/* @__PURE__ */ jsx("span", { children: row.value ?? "" }), row.note && /* @__PURE__ */ jsx("span", {
-				className: "text-meta text-text-muted",
-				children: row.note
-			})]
-		})
+		value: row.value ?? "",
+		note: row.note
 	};
 }
 /**

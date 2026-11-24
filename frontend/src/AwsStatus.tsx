@@ -67,20 +67,9 @@ function ValuesSection({ section, line }: { section: AwsSection; line: boolean }
   );
 }
 
-/**
- * A row as an AttrGrid item: the value with its note muted under it, as Redmine's em.info under a value (REDMINE_ROLE, the
- * variable a value comes from); a long value (an image URI with its digest) wraps anywhere rather than being cut.
- */
+/** A row as an AttrGrid item: the value with its note (the variable it comes from) under it, as Redmine's em.info. */
 function valueItem(row: AwsRow): AttrItem {
-  return {
-    label: row.name,
-    value: (
-      <span className="flex min-w-0 flex-col whitespace-normal wrap-anywhere">
-        <span>{row.value ?? ''}</span>
-        {row.note && <span className="text-meta text-text-muted">{row.note}</span>}
-      </span>
-    ),
-  };
+  return { label: row.name, value: row.value ?? '', note: row.note };
 }
 
 /**
